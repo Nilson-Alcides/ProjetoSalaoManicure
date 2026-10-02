@@ -1,0 +1,628 @@
+﻿@model SalaoManicure.Models.Agendamento
+
+@{
+    ViewData["Title"] = "Novo Agendamento";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid">
+
+    <!-- ========================================================= -->
+    <!-- CABEÇALHO -->
+    <!-- ========================================================= -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-calendar-plus text-primary"></i>
+                Novo Agendamento
+            </h2>
+
+            <p class="text-muted mb-0">
+                Cadastre um novo atendimento.
+            </p>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+
+            <i class="bi bi-arrow-left"></i>
+            Voltar
+
+        </a>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- FORMULÁRIO -->
+    <!-- ========================================================= -->
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <form asp-action="Cadastrar"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+
+                <!-- ================================================= -->
+                <!-- VALIDAÇÕES -->
+                <!-- ================================================= -->
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- CLIENTE / PROFISSIONAL -->
+                <!-- ================================================= -->
+
+                <div class="row">
+
+                    <!-- CLIENTE -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="ClienteId"
+                               class="form-label">
+
+                            Cliente
+
+                        </label>
+
+                        <select asp-for="ClienteId"
+                                class="form-select"
+                                asp-items="ViewBag.Clientes">
+
+                            <option value="">
+                                Selecione o cliente
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="ClienteId"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <!-- PROFISSIONAL -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="ProfissionalId"
+                               class="form-label">
+
+                            Profissional
+
+                        </label>
+
+                        <select asp-for="ProfissionalId"
+                                class="form-select"
+                                asp-items="ViewBag.Profissionais"
+                                id="ProfissionalId">
+
+                            <option value="">
+                                Selecione o profissional
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="ProfissionalId"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- SERVIÇO / STATUS -->
+                <!-- ================================================= -->
+
+                <div class="row">
+
+                    <!-- SERVIÇO -->
+                    @* <div class="col-md-6 mb-3">
+
+                        <label asp-for="ServicoId"
+                               class="form-label">
+
+                            Serviço
+
+                        </label>
+
+                        <select asp-for="ServicoId"
+                                class="form-select"
+                                asp-items="ViewBag.Servicos">
+
+                            <option value="">
+                                Selecione o serviço
+                            </option>
+                        </select>
+
+                        <span asp-validation-for="ServicoId"
+                              class="text-danger">
+                        </span>
+
+                    </div> *@
+                    <div class="mb-3">
+
+                        <label asp-for="ServicoId" class="form-label">
+                            Serviço
+                        </label>
+
+                        <select asp-for="ServicoId"
+                                class="form-select"
+                                asp-items="ViewBag.Servicos">
+
+                            <option value="">
+                                Selecione o serviço
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="ServicoId"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <!-- STATUS -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="Status"
+                               class="form-label">
+
+                            Status
+
+                        </label>
+
+                        <select asp-for="Status"
+                                class="form-select">
+
+                            <option value="Agendado">
+                                Agendado
+                            </option>
+
+                            <option value="Confirmado">
+                                Confirmado
+                            </option>
+
+                            <option value="Concluído">
+                                Concluído
+                            </option>
+
+                            <option value="Cancelado">
+                                Cancelado
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="Status"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- DATA / HORÁRIO -->
+                <!-- ================================================= -->
+
+                <div class="row">
+
+                    <!-- DATA -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="Data"
+                               class="form-label">
+
+                            Data
+
+                        </label>
+
+                        <input asp-for="Data"
+                               type="date"
+                               class="form-control"
+                               id="Data" />
+
+                        <span asp-validation-for="Data"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <!-- HORÁRIO -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="Horario"
+                               class="form-label">
+
+                            Horário
+
+                        </label>
+
+                        <select asp-for="Horario"
+                                class="form-select"
+                                id="Horario"
+                                disabled>
+
+                            <option value="">
+                                Selecione profissional e data
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="Horario"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- MENSAGEM DE HORÁRIOS -->
+                <!-- ================================================= -->
+
+                <div id="mensagemHorario"
+                     class="alert alert-info mt-2 d-none">
+
+                    <i class="bi bi-info-circle"></i>
+
+                    Selecione um profissional e uma data
+                    para consultar os horários disponíveis.
+
+                </div>
+
+
+                <hr class="my-4" />
+
+
+                <!-- ================================================= -->
+                <!-- BOTÕES -->
+                <!-- ================================================= -->
+
+                <div class="d-flex justify-content-end gap-2">
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary">
+
+                        <i class="bi bi-x-circle"></i>
+                        Cancelar
+
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-primary"
+                            id="btnSalvar">
+
+                        <i class="bi bi-check-circle"></i>
+                        Cadastrar Agendamento
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================= -->
+<!-- JAVASCRIPT -->
+<!-- ============================================================= -->
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial");
+    }
+
+
+    <script>
+
+        // ============================================================
+        // ELEMENTOS
+        // ============================================================
+
+        const profissionalSelect =
+            document.getElementById("ProfissionalId");
+
+        const dataInput =
+            document.getElementById("Data");
+
+        const horarioSelect =
+            document.getElementById("Horario");
+
+        const mensagemHorario =
+            document.getElementById("mensagemHorario");
+
+
+        // ============================================================
+        // CARREGAR HORÁRIOS DISPONÍVEIS
+        // ============================================================
+
+        async function carregarHorarios() {
+
+            const profissionalId =
+                profissionalSelect.value;
+
+            const data =
+                dataInput.value;
+
+
+            // --------------------------------------------------------
+            // LIMPAR HORÁRIOS
+            // --------------------------------------------------------
+
+            horarioSelect.innerHTML = "";
+
+
+            // --------------------------------------------------------
+            // VERIFICAR PROFISSIONAL E DATA
+            // --------------------------------------------------------
+
+            if (!profissionalId ||
+                profissionalId === "0" ||
+                !data) {
+
+                horarioSelect.disabled = true;
+
+                horarioSelect.innerHTML =
+                    '<option value="">Selecione profissional e data</option>';
+
+
+                mensagemHorario.classList.remove("d-none");
+
+                mensagemHorario.classList.remove(
+                    "alert-warning",
+                    "alert-success"
+                );
+
+                mensagemHorario.classList.add(
+                    "alert-info"
+                );
+
+                mensagemHorario.innerHTML =
+                    '<i class="bi bi-info-circle"></i> ' +
+                    'Selecione um profissional e uma data ' +
+                    'para consultar os horários disponíveis.';
+
+                return;
+            }
+
+
+            // --------------------------------------------------------
+            // MOSTRAR CARREGANDO
+            // --------------------------------------------------------
+
+            horarioSelect.disabled = true;
+
+            horarioSelect.innerHTML =
+                '<option value="">Carregando horários...</option>';
+
+
+            mensagemHorario.classList.remove("d-none");
+
+            mensagemHorario.classList.remove(
+                "alert-warning",
+                "alert-success"
+            );
+
+            mensagemHorario.classList.add(
+                "alert-info"
+            );
+
+            mensagemHorario.innerHTML =
+                '<i class="bi bi-hourglass-split"></i> ' +
+                'Consultando horários disponíveis...';
+
+
+            try {
+
+                // ----------------------------------------------------
+                // CONSULTAR API DO CONTROLLER
+                // ----------------------------------------------------
+
+                const resposta = await fetch(
+                    `/Agendamentos/HorariosDisponiveis` +
+                    `?profissionalId=${encodeURIComponent(profissionalId)}` +
+                    `&data=${encodeURIComponent(data)}`
+                );
+
+
+                // ----------------------------------------------------
+                // VERIFICAR RESPOSTA
+                // ----------------------------------------------------
+
+                if (!resposta.ok) {
+
+                    throw new Error(
+                        "Erro ao consultar horários."
+                    );
+
+                }
+
+
+                const horarios =
+                    await resposta.json();
+
+
+                // ----------------------------------------------------
+                // LIMPAR SELECT
+                // ----------------------------------------------------
+
+                horarioSelect.innerHTML = "";
+
+
+                // ----------------------------------------------------
+                // NENHUM HORÁRIO
+                // ----------------------------------------------------
+
+                if (!horarios ||
+                    horarios.length === 0) {
+
+                    horarioSelect.disabled = true;
+
+                    horarioSelect.innerHTML =
+                        '<option value="">Nenhum horário disponível</option>';
+
+
+                    mensagemHorario.classList.remove(
+                        "alert-info",
+                        "alert-success"
+                    );
+
+                    mensagemHorario.classList.add(
+                        "alert-warning"
+                    );
+
+                    mensagemHorario.innerHTML =
+                        '<i class="bi bi-exclamation-triangle"></i> ' +
+                        'Não existem horários disponíveis para ' +
+                        'esta data.';
+
+                    return;
+                }
+
+
+                // ----------------------------------------------------
+                // OPÇÃO INICIAL
+                // ----------------------------------------------------
+
+                const opcaoInicial =
+                    document.createElement("option");
+
+                opcaoInicial.value = "";
+
+                opcaoInicial.textContent =
+                    "Selecione um horário";
+
+                horarioSelect.appendChild(
+                    opcaoInicial
+                );
+
+
+                // ----------------------------------------------------
+                // ADICIONAR HORÁRIOS
+                // ----------------------------------------------------
+
+                horarios.forEach(horario => {
+
+                    const option =
+                        document.createElement("option");
+
+
+                    option.value =
+                        horario.valor;
+
+
+                    option.textContent =
+                        horario.texto;
+
+
+                    horarioSelect.appendChild(
+                        option
+                    );
+
+                });
+
+
+                // ----------------------------------------------------
+                // HABILITAR SELECT
+                // ----------------------------------------------------
+
+                horarioSelect.disabled = false;
+
+
+                // ----------------------------------------------------
+                // MENSAGEM DE SUCESSO
+                // ----------------------------------------------------
+
+                mensagemHorario.classList.remove(
+                    "alert-info",
+                    "alert-warning"
+                );
+
+                mensagemHorario.classList.add(
+                    "alert-success"
+                );
+
+                mensagemHorario.innerHTML =
+                    '<i class="bi bi-check-circle"></i> ' +
+                    horarios.length +
+                    ' horário(s) disponível(is) para esta data.';
+
+            }
+            catch (erro) {
+
+                console.error(erro);
+
+
+                // ----------------------------------------------------
+                // ERRO
+                // ----------------------------------------------------
+
+                horarioSelect.disabled = true;
+
+                horarioSelect.innerHTML =
+                    '<option value="">Erro ao carregar horários</option>';
+
+
+                mensagemHorario.classList.remove(
+                    "alert-info",
+                    "alert-success"
+                );
+
+                mensagemHorario.classList.add(
+                    "alert-warning"
+                );
+
+                mensagemHorario.innerHTML =
+                    '<i class="bi bi-exclamation-triangle"></i> ' +
+                    'Não foi possível carregar os horários.';
+
+            }
+
+        }
+
+
+        // ============================================================
+        // EVENTOS
+        // ============================================================
+
+        profissionalSelect.addEventListener(
+            "change",
+            carregarHorarios
+        );
+
+
+        dataInput.addEventListener(
+            "change",
+            carregarHorarios
+        );
+
+    </script>
+}
+

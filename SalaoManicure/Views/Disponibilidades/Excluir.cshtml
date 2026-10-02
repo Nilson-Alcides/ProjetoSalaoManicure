@@ -1,0 +1,197 @@
+﻿
+@model SalaoManicure.Models.Disponibilidade
+
+@{
+    ViewData["Title"] = "Excluir Disponibilidade";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-trash text-danger"></i>
+                Excluir Disponibilidade
+            </h2>
+
+            <p class="text-muted mb-0">
+                Confirme a exclusão desta disponibilidade.
+            </p>
+        </div>
+
+        <a asp-controller="Disponibilidades"
+           asp-action="Index"
+           class="btn btn-secondary">
+
+            <i class="bi bi-arrow-left"></i>
+            Voltar
+
+        </a>
+
+    </div>
+
+
+    <!-- AVISO -->
+
+    <div class="alert alert-warning">
+
+        <i class="bi bi-exclamation-triangle"></i>
+
+        <strong>Atenção!</strong>
+
+        Esta ação não poderá ser desfeita.
+        Deseja realmente excluir esta disponibilidade?
+
+    </div>
+
+
+    <div class="card shadow-sm">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+                Dados da disponibilidade
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <dl class="row mb-0">
+
+                <!-- ID -->
+
+                <dt class="col-sm-3">
+                    ID
+                </dt>
+
+                <dd class="col-sm-9">
+                    @Model.Id
+                </dd>
+
+
+                <!-- PROFISSIONAL -->
+
+                <dt class="col-sm-3">
+                    Profissional
+                </dt>
+
+                <dd class="col-sm-9">
+
+                    @(Model.Profissional?.Nome ?? "Não informado")
+
+                </dd>
+
+
+                <!-- DATA -->
+
+                <dt class="col-sm-3">
+                    Data
+                </dt>
+
+                <dd class="col-sm-9">
+
+                    <i class="bi bi-calendar3 me-1"></i>
+
+                    @Model.Data.ToString("dd/MM/yyyy")
+
+                </dd>
+
+
+                <!-- HORÁRIO -->
+
+                <dt class="col-sm-3">
+                    Horário
+                </dt>
+
+                <dd class="col-sm-9">
+
+                    <span class="badge bg-light text-dark border">
+
+                        <i class="bi bi-clock me-1"></i>
+
+                        @Model.Horario.ToString(@"hh\:mm")
+
+                    </span>
+
+                </dd>
+
+
+                <!-- STATUS -->
+
+                <dt class="col-sm-3">
+                    Status
+                </dt>
+
+                <dd class="col-sm-9">
+
+                    @if (Model.Ativo)
+                    {
+                        <span class="badge bg-success">
+
+                            <i class="bi bi-check-circle me-1"></i>
+                            Ativo
+
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">
+
+                            <i class="bi bi-x-circle me-1"></i>
+                            Inativo
+
+                        </span>
+                    }
+
+                </dd>
+
+            </dl>
+
+        </div>
+
+
+        <!-- BOTÕES -->
+
+        <div class="card-footer d-flex justify-content-end gap-2">
+
+            <a asp-controller="Disponibilidades"
+               asp-action="Index"
+               class="btn btn-secondary">
+
+                <i class="bi bi-x-circle"></i>
+                Cancelar
+
+            </a>
+
+
+            <form asp-controller="Disponibilidades"
+                  asp-action="Excluir"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@Model.Id" />
+
+
+                <button type="submit"
+                        class="btn btn-danger">
+
+                    <i class="bi bi-trash"></i>
+                    Confirmar Exclusão
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+

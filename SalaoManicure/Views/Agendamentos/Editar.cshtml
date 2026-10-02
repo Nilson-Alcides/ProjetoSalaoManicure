@@ -1,0 +1,344 @@
+﻿
+@model SalaoManicure.Models.Agendamento
+
+@{
+    ViewData["Title"] = "Editar Agendamento";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>
+                <i class="bi bi-calendar-event"></i>
+                Editar Agendamento
+            </h2>
+
+            <p class="text-muted">
+                Altere os dados do agendamento.
+            </p>
+        </div>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Voltar
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form asp-action="Editar" method="post">
+
+                <input type="hidden" asp-for="Id" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="row">
+
+                    <!-- CLIENTE -->
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="ClienteId"
+                               class="form-label">
+                            Cliente
+                        </label>
+
+                        <select asp-for="ClienteId"
+                                class="form-select"
+                                asp-items="ViewBag.Clientes">
+
+                            <option value="">
+                                Selecione o cliente
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="ClienteId"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <!-- PROFISSIONAL -->
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="ProfissionalId"
+                               class="form-label">
+                            Profissional
+                        </label>
+
+                        <select asp-for="ProfissionalId"
+                                class="form-select"
+                                asp-items="ViewBag.Profissionais"
+                                id="ProfissionalId">
+
+                            <option value="">
+                                Selecione o profissional
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="ProfissionalId"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <!-- SERVIÇO -->
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="ServicoId"
+                               class="form-label">
+                            Serviço
+                        </label>
+
+                        <select asp-for="ServicoId"
+                                class="form-select"
+                                asp-items="ViewBag.Servicos">
+
+                            <option value="">
+                                Selecione o serviço
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="ServicoId"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <!-- DATA -->
+                    <div class="col-md-3 mb-3">
+
+                        <label asp-for="Data"
+                               class="form-label">
+                            Data
+                        </label>
+
+                        <input asp-for="Data"
+                               type="date"
+                               class="form-control"
+                               id="Data" />
+
+                        <span asp-validation-for="Data"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <!-- HORÁRIO -->
+                    <div class="col-md-3 mb-3">
+
+                        <label asp-for="Horario"
+                               class="form-label">
+                            Horário
+                        </label>
+
+                        <select asp-for="Horario"
+                                class="form-select"
+                                id="Horario">
+
+                            <option value="">
+                                Selecione o horário
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="Horario"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <!-- STATUS -->
+                    <div class="col-md-6 mb-3">
+
+                        <label asp-for="Status"
+                               class="form-label">
+                            Status
+                        </label>
+
+                        <select asp-for="Status"
+                                class="form-select">
+
+                            <option value="Agendado">
+                                Agendado
+                            </option>
+
+                            <option value="Confirmado">
+                                Confirmado
+                            </option>
+
+                            <option value="Concluído">
+                                Concluído
+                            </option>
+
+                            <option value="Cancelado">
+                                Cancelado
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="Status"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <hr />
+
+                <div class="d-flex justify-content-end gap-2">
+
+                    <a asp-action="Index"
+                       class="btn btn-secondary">
+                        Cancelar
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i>
+                        Salvar Alterações
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        const profissionalSelect =
+            document.getElementById("ProfissionalId");
+
+        const dataInput =
+            document.getElementById("Data");
+
+        const horarioSelect =
+            document.getElementById("Horario");
+
+        // Horário que estava salvo no banco
+        const horarioAtual =
+            "@Model.Horario.ToString(@"hh\:mm")";
+
+
+        function carregarHorarios() {
+
+            const profissionalId =
+                profissionalSelect.value;
+
+            const data =
+                dataInput.value;
+
+            horarioSelect.innerHTML =
+                '<option value="">Carregando...</option>';
+
+            horarioSelect.disabled = true;
+
+            if (!profissionalId || !data) {
+
+                horarioSelect.innerHTML =
+                    '<option value="">Selecione profissional e data</option>';
+
+                return;
+            }
+
+
+            fetch(
+                `/Agendamentos/HorariosDisponiveis?profissionalId=${profissionalId}&data=${data}&agendamentoId=@Model.Id`
+            )
+            .then(response => {
+
+                if (!response.ok) {
+                    throw new Error("Erro ao consultar horários.");
+                }
+
+                return response.json();
+
+            })
+            .then(horarios => {
+
+                horarioSelect.innerHTML =
+                    '<option value="">Selecione o horário</option>';
+
+                if (horarios.length === 0) {
+
+                    horarioSelect.innerHTML =
+                        '<option value="">Nenhum horário disponível</option>';
+
+                    horarioSelect.disabled = true;
+
+                    return;
+                }
+
+
+                horarios.forEach(horario => {
+
+                    const option =
+                        document.createElement("option");
+
+                    option.value = horario.valor;
+
+                    option.textContent = horario.texto;
+
+                    // Mantém o horário que estava salvo
+                    if (horario.valor === horarioAtual) {
+                        option.selected = true;
+                    }
+
+                    horarioSelect.appendChild(option);
+
+                });
+
+                horarioSelect.disabled = false;
+
+            })
+            .catch(error => {
+
+                console.error(error);
+
+                horarioSelect.innerHTML =
+                    '<option value="">Erro ao carregar horários</option>';
+
+                horarioSelect.disabled = true;
+
+            });
+
+        }
+
+
+        profissionalSelect.addEventListener(
+            "change",
+            carregarHorarios
+        );
+
+        dataInput.addEventListener(
+            "change",
+            carregarHorarios
+        );
+
+
+        // Carrega os horários ao abrir a tela
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+                carregarHorarios();
+            }
+        );
+
+    </script>
+}
+
