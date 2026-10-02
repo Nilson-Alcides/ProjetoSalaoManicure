@@ -8,13 +8,13 @@ namespace SalaoManicure.Repositories
 {
     public class UsuarioRepository : IUsuarioRepository
     {
-        private readonly string _connectionString;
+        private readonly string _conexao;
 
         public UsuarioRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection")
+            _conexao = configuration.GetConnectionString("ConexaoMySQL")
                 ?? throw new InvalidOperationException(
-                    "Connection string 'DefaultConnection' não encontrada.");
+                    "Connection string 'DefaultConnection' não encontrada."); 
         }
 
         // =========================================================
@@ -22,7 +22,7 @@ namespace SalaoManicure.Repositories
         // =========================================================
         public Usuario? Login(string email, string senha)
         {
-            using var connection = new MySqlConnection(_connectionString);
+            using var connection = new MySqlConnection(_conexao);
 
             connection.Open();
 
@@ -73,7 +73,7 @@ namespace SalaoManicure.Repositories
         // =========================================================
         public Usuario? BuscarPorEmail(string email)
         {
-            using var connection = new MySqlConnection(_connectionString);
+            using var connection = new MySqlConnection(_conexao);
 
             connection.Open();
 
@@ -117,7 +117,7 @@ namespace SalaoManicure.Repositories
         // =========================================================
         public void Cadastrar(Usuario usuario)
         {
-            using var connection = new MySqlConnection(_connectionString);
+            using var connection = new MySqlConnection(_conexao);
 
             connection.Open();
 
@@ -167,7 +167,7 @@ namespace SalaoManicure.Repositories
         // =========================================================
         public Usuario? BuscarPorId(int id)
         {
-            using var connection = new MySqlConnection(_connectionString);
+            using var connection = new MySqlConnection(_conexao);
 
             connection.Open();
 
@@ -211,7 +211,7 @@ namespace SalaoManicure.Repositories
         // =========================================================
         public void Atualizar(Usuario usuario)
         {
-            using var connection = new MySqlConnection(_connectionString);
+            using var connection = new MySqlConnection(_conexao);
 
             connection.Open();
 

@@ -13,5 +13,7 @@ namespace SalaoManicure.Repository.Contract
         List<Cliente> Listar();
 
         Cliente? BuscarPorId(int id);
+
+        Cliente? BuscarPorUsuarioId(int usuarioId);
     }
 }
