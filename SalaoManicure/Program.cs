@@ -1,6 +1,7 @@
 using SalaoManicure.Repositories;
 using SalaoManicure.Repository;
 using SalaoManicure.Repository.Contract;
+using SalaoManicure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,17 @@ builder.Services.AddScoped<IBloqueioRepository,BloqueioRepository>();
 builder.Services.AddScoped<IAgendamentoRepository,AgendamentoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
+builder.Services.AddScoped<JwtService>();
+
+
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(8);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -30,12 +42,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
-
 app.UseRouting();
-
+app.UseSession();
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 // Controllers MVC e API
 app.MapControllers();
