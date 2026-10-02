@@ -1,3 +1,4 @@
+using SalaoManicure.Repositories;
 using SalaoManicure.Repository;
 using SalaoManicure.Repository.Contract;
 
@@ -13,6 +14,7 @@ builder.Services.AddScoped<IServicoRepository, ServicoRepository>();
 builder.Services.AddScoped<IDisponibilidadeRepository,DisponibilidadeRepository>();
 builder.Services.AddScoped<IBloqueioRepository,BloqueioRepository>();
 builder.Services.AddScoped<IAgendamentoRepository,AgendamentoRepository>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
