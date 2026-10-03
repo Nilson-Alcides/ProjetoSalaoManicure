@@ -16,6 +16,7 @@ builder.Services.AddScoped<IDisponibilidadeRepository,DisponibilidadeRepository>
 builder.Services.AddScoped<IBloqueioRepository,BloqueioRepository>();
 builder.Services.AddScoped<IAgendamentoRepository,AgendamentoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 
 builder.Services.AddScoped<JwtService>();
 

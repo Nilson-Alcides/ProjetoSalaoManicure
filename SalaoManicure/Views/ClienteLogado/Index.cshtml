@@ -1,0 +1,179 @@
+﻿
+@model SalaoManicure.Models.Cliente
+
+@{
+    ViewData["Title"] = "Painel do Cliente";
+    Layout = "~/Views/Shared/_LayoutCliente.cshtml";
+
+    var usuarioNome =
+        Context.Session.GetString("UsuarioNome");
+}
+
+<div class="mb-4">
+    <h2 class="fw-bold">
+        Olá, @(usuarioNome ?? Model.Nome)! 👋
+    </h2>
+
+    <p class="text-muted">
+        Seja bem-vindo ao seu painel.
+    </p>
+</div>
+
+<div class="row g-4">
+
+    <!-- Meus Agendamentos -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary bg-opacity-10
+                                text-primary rounded-circle
+                                p-3 me-3">
+                        <i class="bi bi-calendar-check fs-4"></i>
+                    </div>
+
+                    <h5 class="mb-0">
+                        Meus Agendamentos
+                    </h5>
+                </div>
+
+                <p class="text-muted">
+                    Consulte seus agendamentos
+                    realizados no salão.
+                </p>
+
+                <a asp-controller="Agendamentos"
+                   asp-action="Index"
+                   class="btn btn-primary">
+                    <i class="bi bi-calendar-check me-1"></i>
+                    Ver agendamentos
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Novo Agendamento -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success bg-opacity-10
+                                text-success rounded-circle
+                                p-3 me-3">
+                        <i class="bi bi-calendar-plus fs-4"></i>
+                    </div>
+
+                    <h5 class="mb-0">
+                        Novo Agendamento
+                    </h5>
+                </div>
+
+                <p class="text-muted">
+                    Escolha o serviço, profissional,
+                    data e horário.
+                </p>
+
+                <a asp-controller="Agendamentos"
+                   asp-action="Cadastrar"
+                   class="btn btn-success">
+                    <i class="bi bi-calendar-plus me-1"></i>
+                    Agendar
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Meu Perfil -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-warning bg-opacity-10
+                                text-warning rounded-circle
+                                p-3 me-3">
+                        <i class="bi bi-person-vcard fs-4"></i>
+                    </div>
+
+                    <h5 class="mb-0">
+                        Meu Perfil
+                    </h5>
+                </div>
+
+                <p class="text-muted">
+                    Consulte e atualize seus dados pessoais.
+                </p>
+
+                <a asp-controller="ClienteLogado"
+                   asp-action="Editar"
+                   class="btn btn-warning">
+                    <i class="bi bi-pencil me-1"></i>
+                    Meu perfil
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Informações do cliente -->
+
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-body p-4">
+
+        <h5 class="fw-bold mb-4">
+            <i class="bi bi-person-circle me-2"></i>
+            Meus dados
+        </h5>
+
+        <div class="row">
+
+            <div class="col-md-4 mb-3">
+                <small class="text-muted">
+                    Nome
+                </small>
+
+                <div class="fw-semibold">
+                    @Model.Nome
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <small class="text-muted">
+                    E-mail
+                </small>
+
+                <div class="fw-semibold">
+                    @Model.Email
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <small class="text-muted">
+                    Telefone
+                </small>
+
+                <div class="fw-semibold">
+                    @Model.Telefone
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-2">
+            <a asp-controller="ClienteLogado"
+               asp-action="Editar"
+               class="btn btn-outline-primary">
+                <i class="bi bi-pencil me-1"></i>
+                Editar meus dados
+            </a>
+        </div>
+
+    </div>
+</div>
+

@@ -1,0 +1,158 @@
+﻿
+@model SalaoManicure.Models.Cliente
+
+@{
+    ViewData["Title"] = "Completar Cadastro";
+    Layout = "~/Views/Shared/_LayoutCliente.cshtml";
+}
+
+<div class="row justify-content-center">
+
+    <div class="col-md-8 col-lg-6">
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body p-4 p-md-5">
+
+                <div class="text-center mb-4">
+
+                    <div class="mb-3">
+
+                        <i class="bi bi-person-circle text-primary"
+                           style="font-size: 60px;">
+                        </i>
+
+                    </div>
+
+                    <h3 class="fw-bold">
+                        Complete seu cadastro
+                    </h3>
+
+                    <p class="text-muted">
+                        Precisamos de mais algumas informações
+                        para você realizar seus agendamentos.
+                    </p>
+
+                </div>
+
+
+                <form asp-controller="Cliente"
+                      asp-action="CompletarCadastro"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger"
+                         role="alert">
+                    </div>
+
+
+                    <!-- Nome -->
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Nome
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+                                <i class="bi bi-person"></i>
+                            </span>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="@ViewBag.UsuarioNome"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- E-mail -->
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            E-mail
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+                                <i class="bi bi-envelope"></i>
+                            </span>
+
+                            <input type="email"
+                                   class="form-control"
+                                   value="@ViewBag.UsuarioEmail"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Telefone -->
+
+                    <div class="mb-4">
+
+                        <label asp-for="Telefone"
+                               class="form-label">
+                            Telefone
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+                                <i class="bi bi-telephone"></i>
+                            </span>
+
+                            <input asp-for="Telefone"
+                                   class="form-control"
+                                   placeholder="(11) 99999-9999"
+                                   maxlength="20" />
+
+                        </div>
+
+                        <span asp-validation-for="Telefone"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <!-- Botão -->
+
+                    <div class="d-grid">
+
+                        <button type="submit"
+                                class="btn btn-primary btn-lg">
+
+                            <i class="bi bi-check-circle me-2"></i>
+
+                            Salvar cadastro
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}
+

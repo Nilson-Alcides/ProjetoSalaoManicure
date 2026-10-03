@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SalaoManicure.Models;
 using SalaoManicure.Models.Constants;
 using SalaoManicure.Repositories;
+using SalaoManicure.Repository.Contract;
 using SalaoManicure.Services;
 
 namespace SalaoManicure.Controllers
@@ -10,13 +11,16 @@ namespace SalaoManicure.Controllers
     public class AuthController : Controller
     {
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IClienteRepository _clienteRepository;
         private readonly JwtService _jwtService;
 
         public AuthController(
             IUsuarioRepository usuarioRepository,
+           IClienteRepository clienteRepository,
             JwtService jwtService)
         {
             _usuarioRepository = usuarioRepository;
+            _clienteRepository = clienteRepository;
             _jwtService = jwtService;
         }
 
@@ -124,12 +128,17 @@ namespace SalaoManicure.Controllers
                     "Home"
                 );
             }
-
+            if (usuario.Perfil == PerfisUsuario.Cliente) 
+            {
+                var cliente = _clienteRepository.BuscarPorUsuarioId(usuario.Id);
+                if (cliente == null) 
+                { 
+                    return RedirectToAction("CompletarCadastro", "Cliente");
+                } 
+            }
             // Cliente
-            return RedirectToAction(
-                "Index",
-                "Home"
-            );
+            return RedirectToAction("Index", "Home");           
+           
         }
 
 
