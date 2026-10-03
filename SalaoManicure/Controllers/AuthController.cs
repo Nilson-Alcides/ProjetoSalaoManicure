@@ -133,11 +133,11 @@ namespace SalaoManicure.Controllers
                 var cliente = _clienteRepository.BuscarPorUsuarioId(usuario.Id);
                 if (cliente == null) 
                 { 
-                    return RedirectToAction("CompletarCadastro", "Cliente");
+                    return RedirectToAction("CompletarCadastro", "ClienteLogado");
                 } 
             }
             // Cliente
-            return RedirectToAction("Index", "Home");           
+            return RedirectToAction("Index", "ClienteLogado");           
            
         }
 

@@ -32,20 +32,21 @@ namespace SalaoManicure.Controllers
             }
 
             var cliente =
-                _clienteRepository.BuscarPorUsuarioId(usuarioId.Value);
+                _clienteRepository.BuscarPorUsuarioId(
+                    usuarioId.Value);
 
-            // Se ainda não completou o cadastro,
-            // direciona para completar cadastro.
+            // Cliente ainda não completou o cadastro
             if (cliente == null)
             {
-                return RedirectToAction(nameof(CompletarCadastro));
+                return RedirectToAction(
+                    nameof(CompletarCadastro));
             }
 
             return View(cliente);
         }
 
         // ==========================================
-        // COMPLETAR CADASTRO
+        // COMPLETAR CADASTRO - GET
         // ==========================================
 
         [HttpGet]
@@ -60,8 +61,10 @@ namespace SalaoManicure.Controllers
             }
 
             var cliente =
-                _clienteRepository.BuscarPorUsuarioId(usuarioId.Value);
+                _clienteRepository.BuscarPorUsuarioId(
+                    usuarioId.Value);
 
+            // Já possui cadastro
             if (cliente != null)
             {
                 return RedirectToAction(nameof(Index));
@@ -77,12 +80,13 @@ namespace SalaoManicure.Controllers
         }
 
         // ==========================================
-        // SALVAR CADASTRO
+        // COMPLETAR CADASTRO - POST
         // ==========================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CompletarCadastro(Cliente cliente)
+        public IActionResult CompletarCadastro(
+            Cliente cliente)
         {
             int? usuarioId =
                 HttpContext.Session.GetInt32("UsuarioId");
@@ -102,34 +106,51 @@ namespace SalaoManicure.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.UsuarioNome =
-                    HttpContext.Session.GetString("UsuarioNome");
+                    HttpContext.Session.GetString(
+                        "UsuarioNome");
 
                 ViewBag.UsuarioEmail =
-                    HttpContext.Session.GetString("UsuarioEmail");
+                    HttpContext.Session.GetString(
+                        "UsuarioEmail");
 
                 return View(cliente);
             }
 
-            // Nunca confiar no UsuarioId vindo do formulário
+            // ==========================================
+            // DADOS CONTROLADOS PELO SISTEMA
+            // ==========================================
+
+            // Nunca confiar no UsuarioId do formulário
             cliente.UsuarioId = usuarioId.Value;
 
             cliente.Nome =
-                HttpContext.Session.GetString("UsuarioNome")
+                HttpContext.Session.GetString(
+                    "UsuarioNome")
                 ?? string.Empty;
 
             cliente.Email =
-                HttpContext.Session.GetString("UsuarioEmail")
+                HttpContext.Session.GetString(
+                    "UsuarioEmail")
                 ?? string.Empty;
 
             cliente.DataCadastro = DateTime.Now;
 
+            // ==========================================
+            // VERIFICA SE JÁ EXISTE
+            // ==========================================
+
             var clienteExistente =
-                _clienteRepository.BuscarPorUsuarioId(usuarioId.Value);
+                _clienteRepository.BuscarPorUsuarioId(
+                    usuarioId.Value);
 
             if (clienteExistente != null)
             {
                 return RedirectToAction(nameof(Index));
             }
+
+            // ==========================================
+            // CADASTRA
+            // ==========================================
 
             _clienteRepository.Cadastrar(cliente);
 
@@ -141,7 +162,7 @@ namespace SalaoManicure.Controllers
         }
 
         // ==========================================
-        // EDITAR PERFIL
+        // EDITAR PERFIL - GET
         // ==========================================
 
         [HttpGet]
@@ -156,23 +177,26 @@ namespace SalaoManicure.Controllers
             }
 
             var cliente =
-                _clienteRepository.BuscarPorUsuarioId(usuarioId.Value);
+                _clienteRepository.BuscarPorUsuarioId(
+                    usuarioId.Value);
 
             if (cliente == null)
             {
-                return RedirectToAction(nameof(CompletarCadastro));
+                return RedirectToAction(
+                    nameof(CompletarCadastro));
             }
 
             return View(cliente);
         }
 
         // ==========================================
-        // SALVAR EDIÇÃO
+        // EDITAR PERFIL - POST
         // ==========================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Editar(Cliente cliente)
+        public IActionResult Editar(
+            Cliente cliente)
         {
             int? usuarioId =
                 HttpContext.Session.GetInt32("UsuarioId");
@@ -187,25 +211,40 @@ namespace SalaoManicure.Controllers
                 return View(cliente);
             }
 
+            // Busca o cliente do usuário logado
             var clienteExistente =
-                _clienteRepository.BuscarPorUsuarioId(usuarioId.Value);
+                _clienteRepository.BuscarPorUsuarioId(
+                    usuarioId.Value);
 
             if (clienteExistente == null)
             {
-                return RedirectToAction(nameof(CompletarCadastro));
+                return RedirectToAction(
+                    nameof(CompletarCadastro));
             }
 
-            // Utiliza o cliente do usuário logado
+            // ==========================================
+            // DADOS CONTROLADOS PELO SISTEMA
+            // ==========================================
+
+            // Não confiar no Id enviado pelo formulário
             cliente.Id = clienteExistente.Id;
+
+            // Não confiar no UsuarioId enviado pelo formulário
             cliente.UsuarioId = usuarioId.Value;
 
             cliente.Nome =
-                HttpContext.Session.GetString("UsuarioNome")
+                HttpContext.Session.GetString(
+                    "UsuarioNome")
                 ?? clienteExistente.Nome;
 
             cliente.Email =
-                HttpContext.Session.GetString("UsuarioEmail")
+                HttpContext.Session.GetString(
+                    "UsuarioEmail")
                 ?? clienteExistente.Email;
+
+            // ==========================================
+            // ATUALIZA
+            // ==========================================
 
             _clienteRepository.Atualizar(cliente);
 
