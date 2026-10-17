@@ -14,5 +14,7 @@ namespace SalaoManicure.Repository.Contract
         List<Agendamento> Listar();
 
         Agendamento? BuscarPorId(int id);
+
+        List<Agendamento> ListarPorCliente(int clienteId);
     }
 }

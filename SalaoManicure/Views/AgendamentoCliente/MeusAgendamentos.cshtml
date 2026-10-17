@@ -1,0 +1,134 @@
+﻿
+@model List<SalaoManicure.Models.Agendamento>
+
+@{
+    ViewData["Title"] = "Meus Agendamentos";
+    Layout = "~/Views/Shared/_LayoutCliente.cshtml";
+}
+
+<div class="container py-4">
+
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Meus Agendamentos</h2>
+            <p class="text-muted mb-0">
+                Consulte seus horários e acompanhe seus agendamentos.
+            </p>
+        </div>
+
+        <a asp-controller="AgendamentoCliente"
+           asp-action="Cadastrar"
+           class="btn btn-primary">
+            <i class="bi bi-calendar-plus me-1"></i>
+            Novo Agendamento
+        </a>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-calendar-x fs-1 text-muted"></i>
+
+                <h5 class="mt-3">Nenhum agendamento encontrado</h5>
+
+                <p class="text-muted">
+                    Você ainda não possui agendamentos cadastrados.
+                </p>
+
+                <a asp-controller="AgendamentoCliente"
+                   asp-action="Cadastrar"
+                   class="btn btn-primary">
+                    Agendar um serviço
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Data</th>
+                                <th>Horário</th>
+                                <th>Serviço</th>
+                                <th>Profissional</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var agendamento in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @agendamento.Data.ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <td>
+                                        @agendamento.Horario.ToString(@"hh\:mm")
+                                    </td>
+
+                                    <td>
+                                        @(agendamento.Servico?.Nome ?? "Não informado")
+                                    </td>
+
+                                    <td>
+                                        @(agendamento.Profissional?.Nome ?? "Não informado")
+                                    </td>
+
+                                    <td>
+                                        @switch (agendamento.Status?.ToLower())
+                                        {
+                                            case "agendado":
+                                                <span class="badge bg-primary">
+                                                    Agendado
+                                                </span>
+                                                break;
+
+                                            case "confirmado":
+                                                <span class="badge bg-success">
+                                                    Confirmado
+                                                </span>
+                                                break;
+
+                                            case "concluído":
+                                            case "concluido":
+                                                <span class="badge bg-secondary">
+                                                    Concluído
+                                                </span>
+                                                break;
+
+                                            case "cancelado":
+                                                <span class="badge bg-danger">
+                                                    Cancelado
+                                                </span>
+                                                break;
+
+                                            default:
+                                                <span class="badge bg-light text-dark">
+                                                    @agendamento.Status
+                                                </span>
+                                                break;
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="text-muted small mt-2">
+                    Total de agendamentos: @Model.Count
+                </div>
+
+            </div>
+        </div>
+    }
+
+</div>

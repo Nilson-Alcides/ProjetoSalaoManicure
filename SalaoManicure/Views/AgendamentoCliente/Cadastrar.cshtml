@@ -1,0 +1,318 @@
+﻿
+@model SalaoManicure.Models.Agendamento
+
+@{
+    ViewData["Title"] = "Novo Agendamento";
+    Layout = "~/Views/Shared/_LayoutCliente.cshtml";
+}
+
+<div class="container py-4">
+
+    <div class="mb-4">
+        <h2>
+            <i class="bi bi-calendar-plus me-2"></i>
+            Novo Agendamento
+        </h2>
+
+        <p class="text-muted">
+            Escolha o profissional, o serviço, a data e um horário disponível.
+        </p>
+    </div>
+
+    @if (TempData["Sucesso"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Sucesso"]
+        </div>
+    }
+
+    @if (TempData["Erro"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Erro"]
+        </div>
+    }
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+
+            <form asp-controller="AgendamentoCliente"
+                  asp-action="Cadastrar"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger"
+                     role="alert"></div>
+
+                <div class="row g-3">
+
+                    <!-- PROFISSIONAL -->
+                    <div class="col-md-6">
+                        <label asp-for="ProfissionalId"
+                               class="form-label">
+                            Profissional
+                        </label>
+
+                        <select asp-for="ProfissionalId"
+                                asp-items="ViewBag.Profissionais"
+                                class="form-select"
+                                id="ProfissionalId"
+                                required>
+                            <option value="">Selecione o profissional</option>
+                        </select>
+
+                        <span asp-validation-for="ProfissionalId"
+                              class="text-danger"></span>
+                    </div>
+
+                    <!-- SERVIÇO -->
+                    <div class="col-md-6">
+                        <label asp-for="ServicoId"
+                               class="form-label">
+                            Serviço
+                        </label>
+
+                        <select asp-for="ServicoId"
+                                asp-items="ViewBag.Servicos"
+                                class="form-select"
+                                required>
+                            <option value="">Selecione o serviço</option>
+                        </select>
+
+                        <span asp-validation-for="ServicoId"
+                              class="text-danger"></span>
+                    </div>
+
+                    <!-- DATA -->
+                    <div class="col-md-6">
+                        <label asp-for="Data"
+                               class="form-label">
+                            Data do agendamento
+                        </label>
+
+                        <input asp-for="Data"
+                               type="date"
+                               class="form-control"
+                               id="Data"
+                               min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                               required />
+
+                        <span asp-validation-for="Data"
+                              class="text-danger"></span>
+                    </div>
+
+                    <!-- HORÁRIO -->
+                    <div class="col-md-6">
+                        <label asp-for="Horario"
+                               class="form-label">
+                            Horário disponível
+                        </label>
+
+                        <select asp-for="Horario"
+                                class="form-select"
+                                id="Horario"
+                                required
+                                disabled>
+                            <option value="">
+                                Selecione primeiro o profissional e a data
+                            </option>
+                        </select>
+
+                        <span asp-validation-for="Horario"
+                              class="text-danger"></span>
+
+                        <div id="mensagemHorarios"
+                             class="form-text">
+                            Selecione o profissional e a data para consultar os horários.
+                        </div>
+                    </div>
+
+                </div>
+
+                <input type="hidden"
+                       asp-for="Status"
+                       value="Agendado" />
+
+                <hr class="my-4" />
+
+                <div class="d-flex flex-wrap gap-2">
+
+                    <button type="submit"
+                            class="btn btn-primary"
+                            id="btnAgendar">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Confirmar agendamento
+                    </button>
+
+                    <a asp-controller="AgendamentoCliente"
+                       asp-action="MeusAgendamentos"
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Voltar
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const profissionalSelect =
+                document.getElementById("ProfissionalId");
+
+            const dataInput =
+                document.getElementById("Data");
+
+            const horarioSelect =
+                document.getElementById("Horario");
+
+            const mensagem =
+                document.getElementById("mensagemHorarios");
+
+            const btnAgendar =
+                document.getElementById("btnAgendar");
+
+            async function carregarHorarios() {
+
+                const profissionalId = profissionalSelect.value;
+                const data = dataInput.value;
+
+                horarioSelect.innerHTML = "";
+
+                // Não consulta sem profissional e data.
+                if (!profissionalId || !data) {
+                    horarioSelect.add(
+                        new Option(
+                            "Selecione primeiro o profissional e a data",
+                            ""
+                        )
+                    );
+
+                    horarioSelect.disabled = true;
+                    mensagem.textContent =
+                        "Selecione o profissional e a data para consultar os horários.";
+
+                    return;
+                }
+
+                horarioSelect.disabled = true;
+
+                horarioSelect.add(
+                    new Option("Carregando horários...", "")
+                );
+
+                mensagem.textContent =
+                    "Consultando os horários disponíveis...";
+
+                try {
+                    const url =
+                        `/AgendamentoCliente/HorariosDisponiveis` +
+                        `?profissionalId=${encodeURIComponent(profissionalId)}` +
+                        `&data=${encodeURIComponent(data)}`;
+
+                    const resposta = await fetch(url);
+
+                    if (!resposta.ok) {
+                        throw new Error("Falha ao consultar horários.");
+                    }
+
+                    const horarios = await resposta.json();
+
+                    horarioSelect.innerHTML = "";
+
+                    horarioSelect.add(
+                        new Option("Selecione um horário", "")
+                    );
+
+                    if (!horarios || horarios.length === 0) {
+                        horarioSelect.add(
+                            new Option("Nenhum horário disponível", "")
+                        );
+
+                        mensagem.textContent =
+                            "Não existem horários disponíveis para esta data e profissional.";
+
+                        horarioSelect.disabled = true;
+                        return;
+                    }
+
+                    horarios.forEach(function (item) {
+                        horarioSelect.add(
+                            new Option(item.texto, item.valor)
+                        );
+                    });
+
+                    horarioSelect.disabled = false;
+
+                    mensagem.textContent =
+                        `${horarios.length} horário(s) disponível(is).`;
+
+                } catch (erro) {
+
+                    horarioSelect.innerHTML = "";
+
+                    horarioSelect.add(
+                        new Option("Erro ao carregar horários", "")
+                    );
+
+                    horarioSelect.disabled = true;
+
+                    mensagem.textContent =
+                        "Não foi possível consultar os horários. Tente novamente.";
+
+                    console.error(erro);
+                }
+            }
+
+            profissionalSelect.addEventListener(
+                "change",
+                carregarHorarios
+            );
+
+            dataInput.addEventListener(
+                "change",
+                carregarHorarios
+            );
+
+            // Atualiza a consulta se a página for reaberta
+            // com profissional e data já selecionados.
+            if (profissionalSelect.value && dataInput.value) {
+                carregarHorarios();
+            }
+
+            // Evita duplo envio pelo botão.
+            document.querySelector("form").addEventListener(
+                "submit",
+                function (event) {
+
+                    if (horarioSelect.disabled ||
+                        !horarioSelect.value) {
+
+                        event.preventDefault();
+
+                        mensagem.textContent =
+                            "Selecione um horário disponível antes de confirmar.";
+
+                        horarioSelect.focus();
+                        return;
+                    }
+
+                    btnAgendar.disabled = true;
+                    btnAgendar.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-1"></span>' +
+                        'Processando...';
+                }
+            );
+        });
+    </script>
+}

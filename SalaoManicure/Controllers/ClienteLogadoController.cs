@@ -177,8 +177,7 @@ namespace SalaoManicure.Controllers
             }
 
             var cliente =
-                _clienteRepository.BuscarPorUsuarioId(
-                    usuarioId.Value);
+                _clienteRepository.BuscarPorUsuarioId(usuarioId.Value);
 
             if (cliente == null)
             {
@@ -213,8 +212,7 @@ namespace SalaoManicure.Controllers
 
             // Busca o cliente do usuário logado
             var clienteExistente =
-                _clienteRepository.BuscarPorUsuarioId(
-                    usuarioId.Value);
+                _clienteRepository.BuscarPorUsuarioId(usuarioId.Value);
 
             if (clienteExistente == null)
             {

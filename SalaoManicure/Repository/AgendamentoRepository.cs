@@ -336,6 +336,66 @@ namespace SalaoManicure.Repository
                 }
             };
         }
+
+        public List<Agendamento> ListarPorCliente(int clienteId)
+        {
+            var agendamentos = new List<Agendamento>();
+
+            using var conexao = new MySqlConnection(_conexao);
+
+            string sql = @"
+                        SELECT
+                            a.Id,
+                            a.Data,
+                            a.Horario,
+                            a.Status,
+                            a.ClienteId,
+                            a.ProfissionalId,
+                            a.ServicoId,
+                            s.Nome AS ServicoNome,
+                            p.Nome AS ProfissionalNome
+                        FROM agendamentos a
+                        INNER JOIN servicos s ON s.Id = a.ServicoId
+                        INNER JOIN profissionais p ON p.Id = a.ProfissionalId
+                        WHERE a.ClienteId = @ClienteId
+                        ORDER BY a.Data DESC, a.Horario DESC;";
+
+            using var comando = new MySqlCommand(sql, conexao);
+
+            comando.Parameters.AddWithValue("@ClienteId", clienteId);
+
+            conexao.Open();
+
+            using var reader = comando.ExecuteReader();
+
+            while (reader.Read())
+            {
+                var agendamento = new Agendamento
+                {
+                    Id = reader.GetInt32("Id"),
+                    Data = reader.GetDateTime("Data"),
+                    Horario = reader.GetTimeSpan("Horario"),
+                    Status = reader.GetString("Status"),
+                    ClienteId = reader.GetInt32("ClienteId"),
+                    ProfissionalId = reader.GetInt32("ProfissionalId"),
+                    ServicoId = reader.GetInt32("ServicoId"),
+
+                    Servico = new Servico
+                    {
+                        Nome = reader.GetString("ServicoNome")
+                    },
+
+                    Profissional = new Profissional
+                    {
+                        Nome = reader.GetString("ProfissionalNome")
+                    }
+                };
+
+                agendamentos.Add(agendamento);
+            }
+
+            return agendamentos;
+        }
     }
 }
 

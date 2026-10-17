@@ -101,7 +101,7 @@
             <!-- Logo -->
 
             <a class="navbar-brand"
-               asp-controller="Home"
+               asp-controller="ClienteLogado"
                asp-action="Index">
 
                 <i class="bi bi-stars me-2"></i>
@@ -135,7 +135,7 @@
                     <li class="nav-item">
 
                         <a class="nav-link"
-                           asp-controller="Home"
+                           asp-controller="ClienteLogado"
                            asp-action="Index">
 
                             <i class="bi bi-house-door me-1"></i>
@@ -152,8 +152,8 @@
                     <li class="nav-item">
 
                         <a class="nav-link"
-                           asp-controller="Agendamentos"
-                           asp-action="Index">
+                           asp-controller="AgendamentoCliente"
+                           asp-action="MeusAgendamentos">
 
                             <i class="bi bi-calendar-check me-1"></i>
 
@@ -169,7 +169,7 @@
                     <li class="nav-item">
 
                         <a class="nav-link"
-                           asp-controller="Agendamentos"
+                           asp-controller="AgendamentoCliente"
                            asp-action="Cadastrar">
 
                             <i class="bi bi-calendar-plus me-1"></i>
@@ -232,8 +232,8 @@
                             <li>
 
                                 <a class="dropdown-item"
-                                   asp-controller="Cliente"
-                                   asp-action="Editar">
+                                   asp-controller="ClienteLogado"
+                                   asp-action="Index">
                                     <i class="bi bi-person-vcard me-2"></i>
                                     Meu Perfil
                                 </a>
@@ -241,8 +241,8 @@
                             <!-- Agendamentos -->
                             <li>
                                 <a class="dropdown-item"
-                                   asp-controller="Agendamentos"
-                                   asp-action="Index">
+                                   asp-controller="AgendamentoCliente"
+                                   asp-action="MeusAgendamentos">
                                     <i class="bi bi-calendar-check me-2"></i>
                                     Meus Agendamentos
                                 </a>
