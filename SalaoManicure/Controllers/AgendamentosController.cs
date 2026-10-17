@@ -220,125 +220,201 @@ namespace SalaoManicure.Controllers
         // HORÁRIOS DISPONÍVEIS
         // ============================================================
 
+
+       
         [HttpGet]
         public IActionResult HorariosDisponiveis(
             int profissionalId,
             DateTime data,
             int? agendamentoId = null)
-        {
-            // --------------------------------------------------------
-            // 1. VALIDAR PROFISSIONAL
-            // --------------------------------------------------------
+                {
+                    // 1. Buscar disponibilidades somente pela data
+                    var disponibilidades = _disponibilidadeRepository.Listar()
+                        .Where(d =>
+                            d.Data.Date == data.Date &&
+                            d.Disponivel)
+                        .OrderBy(d => d.Horario)
+                        .ToList();
 
-            if (profissionalId <= 0)
-            {
-                return Json(new List<object>());
-            }
-
-
-            // --------------------------------------------------------
-            // 2. BUSCAR DISPONIBILIDADES DA DATA
-            // --------------------------------------------------------
-
-            var disponibilidades =
-                _disponibilidadeRepository.Listar()
-                    .Where(d =>
-                        d.ProfissionalId == profissionalId &&
-                        d.Data.Date == data.Date &&
-                        d.Ativo)
-                    .OrderBy(d => d.Horario)
-                    .ToList();
-
-
-            // Não existem horários cadastrados
-            if (!disponibilidades.Any())
-            {
-                return Json(new List<object>());
-            }
-
-
-            // --------------------------------------------------------
-            // 3. BUSCAR BLOQUEIOS DA DATA
-            // --------------------------------------------------------
-
-            var bloqueios =
-                _bloqueioRepository.Listar()
-                    .Where(b =>
-                        b.ProfissionalId == profissionalId &&
-                        b.Data.Date == data.Date &&
-                        b.Ativo)
-                    .ToList();
-
-
-            // --------------------------------------------------------
-            // 4. VERIFICAR SE O DIA INTEIRO ESTÁ BLOQUEADO
-            // --------------------------------------------------------
-
-            bool diaBloqueado =
-                bloqueios.Any(
-                    b => !b.Horario.HasValue);
-
-            if (diaBloqueado)
-            {
-                return Json(new List<object>());
-            }
-
-
-            // --------------------------------------------------------
-            // 5. BUSCAR AGENDAMENTOS EXISTENTES
-            // --------------------------------------------------------
-
-            var agendamentos =
-                _agendamentoRepository.Listar()
-                    .Where(a =>
-                        a.ProfissionalId == profissionalId &&
-                        a.Data.Date == data.Date &&
-                        a.Status != "Cancelado" &&
-
-                        // Se estiver editando,
-                        // ignora o próprio agendamento.
-                        (
-                            !agendamentoId.HasValue ||
-                            a.Id != agendamentoId.Value
-                        ))
-                    .ToList();
-
-
-            // --------------------------------------------------------
-            // 6. FILTRAR HORÁRIOS DISPONÍVEIS
-            // --------------------------------------------------------
-
-            var horariosDisponiveis =
-                disponibilidades
-                    .Where(d =>
-
-                        // Não está bloqueado
-                        !bloqueios.Any(b =>
-                            b.Horario.HasValue &&
-                            b.Horario.Value == d.Horario
-                        )
-
-                        &&
-
-                        // Não está ocupado por outro agendamento
-                        !agendamentos.Any(a =>
-                            a.Horario == d.Horario
-                        )
-
-                    )
-                    .Select(d => new
+                    if (!disponibilidades.Any())
                     {
-                        valor =
-                            d.Horario.ToString(@"hh\:mm"),
+                        return Json(new List<object>());
+                    }
 
-                        texto =
-                            d.Horario.ToString(@"hh\:mm")
-                    })
-                    .ToList();
+                    // 2. Buscar bloqueios do profissional selecionado
+                    var bloqueios = _bloqueioRepository.Listar()
+                        .Where(b =>
+                            b.ProfissionalId == profissionalId &&
+                            b.Data.Date == data.Date &&
+                            b.Ativo)
+                        .ToList();
 
+                    // 3. Se o dia inteiro estiver bloqueado, não retorna horários
+                    if (bloqueios.Any(b => !b.Horario.HasValue))
+                    {
+                        return Json(new List<object>());
+                    }
 
-            return Json(horariosDisponiveis);
+                    // 4. Buscar agendamentos existentes do profissional
+                    var agendamentos = _agendamentoRepository.Listar()
+                        .Where(a =>
+                            a.ProfissionalId == profissionalId &&
+                            a.Data.Date == data.Date &&
+                            a.Status != "Cancelado" &&
+                            (!agendamentoId.HasValue ||
+                             a.Id != agendamentoId.Value))
+                        .ToList();
+
+                    // 5. Retornar somente os horários livres
+                    var horariosDisponiveis = disponibilidades
+                        .Where(d =>
+                            !bloqueios.Any(b =>
+                                b.Horario.HasValue &&
+                                b.Horario.Value == d.Horario) &&
+                            !agendamentos.Any(a =>
+                                a.Horario == d.Horario))
+                        .Select(d => new
+                        {
+                            valor = d.Horario.ToString(@"hh\:mm"),
+                            texto = d.Horario.ToString(@"hh\:mm")
+                        })
+                        .ToList();
+
+                    return Json(horariosDisponiveis);
         }
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //public IActionResult HorariosDisponiveis(
+        //    int profissionalId,
+        //    DateTime data,
+        //    int? agendamentoId = null)
+        //{
+        //    // --------------------------------------------------------
+        //    // 1. VALIDAR PROFISSIONAL
+        //    // --------------------------------------------------------
+
+        //    if (profissionalId <= 0)
+        //    {
+        //        return Json(new List<object>());
+        //    }
+
+
+        //    // --------------------------------------------------------
+        //    // 2. BUSCAR DISPONIBILIDADES DA DATA
+        //    // --------------------------------------------------------
+
+        //    var disponibilidades =
+        //        _disponibilidadeRepository.Listar()
+        //            .Where(d =>
+        //                d.ProfissionalId == profissionalId &&
+        //                d.Data.Date == data.Date &&
+        //                d.Ativo)
+        //            .OrderBy(d => d.Horario)
+        //            .ToList();
+
+
+        //    // Não existem horários cadastrados
+        //    if (!disponibilidades.Any())
+        //    {
+        //        return Json(new List<object>());
+        //    }
+
+
+        //    // --------------------------------------------------------
+        //    // 3. BUSCAR BLOQUEIOS DA DATA
+        //    // --------------------------------------------------------
+
+        //    var bloqueios =
+        //        _bloqueioRepository.Listar()
+        //            .Where(b =>
+        //                b.ProfissionalId == profissionalId &&
+        //                b.Data.Date == data.Date &&
+        //                b.Ativo)
+        //            .ToList();
+
+
+        //    // --------------------------------------------------------
+        //    // 4. VERIFICAR SE O DIA INTEIRO ESTÁ BLOQUEADO
+        //    // --------------------------------------------------------
+
+        //    bool diaBloqueado =
+        //        bloqueios.Any(
+        //            b => !b.Horario.HasValue);
+
+        //    if (diaBloqueado)
+        //    {
+        //        return Json(new List<object>());
+        //    }
+
+
+        //    // --------------------------------------------------------
+        //    // 5. BUSCAR AGENDAMENTOS EXISTENTES
+        //    // --------------------------------------------------------
+
+        //    var agendamentos =
+        //        _agendamentoRepository.Listar()
+        //            .Where(a =>
+        //                a.ProfissionalId == profissionalId &&
+        //                a.Data.Date == data.Date &&
+        //                a.Status != "Cancelado" &&
+
+        //                // Se estiver editando,
+        //                // ignora o próprio agendamento.
+        //                (
+        //                    !agendamentoId.HasValue ||
+        //                    a.Id != agendamentoId.Value
+        //                ))
+        //            .ToList();
+
+
+        //    // --------------------------------------------------------
+        //    // 6. FILTRAR HORÁRIOS DISPONÍVEIS
+        //    // --------------------------------------------------------
+
+        //    var horariosDisponiveis =
+        //        disponibilidades
+        //            .Where(d =>
+
+        //                // Não está bloqueado
+        //                !bloqueios.Any(b =>
+        //                    b.Horario.HasValue &&
+        //                    b.Horario.Value == d.Horario
+        //                )
+
+        //                &&
+
+        //                // Não está ocupado por outro agendamento
+        //                !agendamentos.Any(a =>
+        //                    a.Horario == d.Horario
+        //                )
+
+        //            )
+        //            .Select(d => new
+        //            {
+        //                valor =
+        //                    d.Horario.ToString(@"hh\:mm"),
+
+        //                texto =
+        //                    d.Horario.ToString(@"hh\:mm")
+        //            })
+        //            .ToList();
+
+
+        //    return Json(horariosDisponiveis);
+        //}
 
 
         // ============================================================
@@ -356,8 +432,7 @@ namespace SalaoManicure.Controllers
             var disponibilidade =
                 _disponibilidadeRepository.Listar()
                     .FirstOrDefault(d =>
-                        d.ProfissionalId ==
-                            agendamento.ProfissionalId &&
+                        
 
                         d.Data.Date ==
                             agendamento.Data.Date &&
@@ -365,7 +440,7 @@ namespace SalaoManicure.Controllers
                         d.Horario ==
                             agendamento.Horario &&
 
-                        d.Ativo
+                        d.Disponivel
                     );
 
 
@@ -496,7 +571,7 @@ namespace SalaoManicure.Controllers
                     .ToList();
 
 
-            // SERVIÇOS
+
             // SERVIÇOS
             ViewBag.Servicos =
                 _servicoRepository.Listar()

@@ -22,6 +22,7 @@ namespace SalaoManicure.Repository
         // CADASTRAR
         // ============================================================
 
+
         public void Cadastrar(Disponibilidade disponibilidade)
         {
             using var conexao = new MySqlConnection(_conexao);
@@ -29,31 +30,20 @@ namespace SalaoManicure.Repository
             conexao.Open();
 
             string sql = @"
-                INSERT INTO Disponibilidades
-                    (ProfissionalId, Data, Horario, Ativo)
-                VALUES
-                    (@ProfissionalId, @Data, @Horario, @Ativo);";
+                        INSERT INTO disponibilidades
+                            (Data, Horario, Disponivel)
+                        VALUES
+                            (@Data, @Horario, @Disponivel);";
 
             using var comando = new MySqlCommand(sql, conexao);
 
-            comando.Parameters.AddWithValue(
-                "@ProfissionalId",
-                disponibilidade.ProfissionalId);
-
-            comando.Parameters.AddWithValue(
-                "@Data",
-                disponibilidade.Data.Date);
-
-            comando.Parameters.AddWithValue(
-                "@Horario",
-                disponibilidade.Horario);
-
-            comando.Parameters.AddWithValue(
-                "@Ativo",
-                disponibilidade.Ativo);
+            comando.Parameters.AddWithValue("@Data",disponibilidade.Data.Date);
+            comando.Parameters.AddWithValue("@Horario",disponibilidade.Horario);
+            comando.Parameters.AddWithValue("@Disponivel",disponibilidade.Disponivel);
 
             comando.ExecuteNonQuery();
         }
+
 
         // ============================================================
         // ATUALIZAR
@@ -65,36 +55,18 @@ namespace SalaoManicure.Repository
 
             conexao.Open();
 
-            string sql = @"
-                UPDATE Disponibilidades
-                SET
-                    ProfissionalId = @ProfissionalId,
-                    Data = @Data,
-                    Horario = @Horario,
-                    Ativo = @Ativo
-                WHERE Id = @Id;";
+            string sql = @"UPDATE Disponibilidades
+                            SET
+                                Id = @Id, Data = @Data,
+                                Horario = @Horario, Disponivel = @Disponivel
+                            WHERE Id = @Id;";
 
             using var comando = new MySqlCommand(sql, conexao);
 
-            comando.Parameters.AddWithValue(
-                "@Id",
-                disponibilidade.Id);
-
-            comando.Parameters.AddWithValue(
-                "@ProfissionalId",
-                disponibilidade.ProfissionalId);
-
-            comando.Parameters.AddWithValue(
-                "@Data",
-                disponibilidade.Data.Date);
-
-            comando.Parameters.AddWithValue(
-                "@Horario",
-                disponibilidade.Horario);
-
-            comando.Parameters.AddWithValue(
-                "@Ativo",
-                disponibilidade.Ativo);
+            comando.Parameters.AddWithValue("@Id",disponibilidade.Id);
+            comando.Parameters.AddWithValue("@Data",disponibilidade.Data.Date);
+            comando.Parameters.AddWithValue("@Horario",disponibilidade.Horario);
+            comando.Parameters.AddWithValue("@Disponivel",disponibilidade.Disponivel);
 
             comando.ExecuteNonQuery();
         }
@@ -109,15 +81,12 @@ namespace SalaoManicure.Repository
 
             conexao.Open();
 
-            string sql = @"
-                DELETE FROM Disponibilidades
-                WHERE Id = @Id;";
+            string sql = @"DELETE FROM Disponibilidades
+                             WHERE Id = @Id;";
 
             using var comando = new MySqlCommand(sql, conexao);
 
-            comando.Parameters.AddWithValue(
-                "@Id",
-                id);
+            comando.Parameters.AddWithValue("@Id",id);
 
             comando.ExecuteNonQuery();
         }
@@ -136,22 +105,13 @@ namespace SalaoManicure.Repository
             conexao.Open();
 
             string sql = @"
-                SELECT
-                    d.Id,
-                    d.ProfissionalId,
-                    p.Nome AS ProfissionalNome,
-                    d.Data,
-                    d.Horario,
-                    d.Ativo
+               SELECT d.Id, d.Data, d.Horario, d.Disponivel
                 FROM Disponibilidades d
-
-                INNER JOIN Profissionais p
-                    ON p.Id = d.ProfissionalId
-
-                ORDER BY
-                    d.Data,
-                    d.Horario,
-                    p.Nome;";
+               WHERE d.Disponivel = 1
+                  AND d.Data >= CURDATE()  
+                  ORDER BY
+                     d.Data,
+                     d.Horario;";
 
             using var comando = new MySqlCommand(sql, conexao);
 
@@ -162,28 +122,10 @@ namespace SalaoManicure.Repository
                 var disponibilidade =
                     new Disponibilidade
                     {
-                        Id = reader.GetInt32("Id"),
-
-                        ProfissionalId =
-                            reader.GetInt32("ProfissionalId"),
-
-                        Profissional = new Profissional
-                        {
-                            Id = reader.GetInt32("ProfissionalId"),
-
-                            Nome =
-                                reader.GetString(
-                                    "ProfissionalNome")
-                        },
-
-                        Data =
-                            reader.GetDateTime("Data"),
-
-                        Horario =
-                            reader.GetTimeSpan("Horario"),
-
-                        Ativo =
-                            reader.GetBoolean("Ativo")
+                        Id = reader.GetInt32("Id"), 
+                        Data = reader.GetDateTime("Data"),
+                        Horario = reader.GetTimeSpan("Horario"),
+                        Disponivel = reader.GetBoolean("Disponivel")
                     };
 
                 disponibilidades.Add(disponibilidade);
@@ -203,25 +145,14 @@ namespace SalaoManicure.Repository
             conexao.Open();
 
             string sql = @"
-                SELECT
-                    d.Id,
-                    d.ProfissionalId,
-                    p.Nome AS ProfissionalNome,
-                    d.Data,
-                    d.Horario,
-                    d.Ativo
-                FROM Disponibilidades d
-
-                INNER JOIN Profissionais p
-                    ON p.Id = d.ProfissionalId
-
-                WHERE d.Id = @Id;";
+                SELECT  d.Id, d.Data, d.Horario, d.Disponivel  FROM Disponibilidades d 
+                 WHERE d.Disponivel = 1 AND d.Data >= CURDATE()  AND d.Id = 25
+                 ORDER BY 
+                   d.Data, d.Horario; ";
 
             using var comando = new MySqlCommand(sql, conexao);
 
-            comando.Parameters.AddWithValue(
-                "@Id",
-                id);
+            comando.Parameters.AddWithValue("@Id",id);
 
             using var reader = comando.ExecuteReader();
 
@@ -232,29 +163,10 @@ namespace SalaoManicure.Repository
 
             return new Disponibilidade
             {
-                Id = reader.GetInt32("Id"),
-
-                ProfissionalId =
-                    reader.GetInt32("ProfissionalId"),
-
-                Profissional = new Profissional
-                {
-                    Id =
-                        reader.GetInt32("ProfissionalId"),
-
-                    Nome =
-                        reader.GetString(
-                            "ProfissionalNome")
-                },
-
-                Data =
-                    reader.GetDateTime("Data"),
-
-                Horario =
-                    reader.GetTimeSpan("Horario"),
-
-                Ativo =
-                    reader.GetBoolean("Ativo")
+                Id = reader.GetInt32("Id"), 
+                Data = reader.GetDateTime("Data"),
+                Horario = reader.GetTimeSpan("Horario"),
+                Disponivel = reader.GetBoolean("Disponivel")
             };
         }
     }

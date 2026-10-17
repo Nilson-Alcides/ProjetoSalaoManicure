@@ -139,17 +139,26 @@ public class ClienteRepository : IClienteRepository
             clientes.Add(new Cliente
             {
                 Id = reader.GetInt32("Id"),
-                UsuarioId = reader.GetInt32("UsuarioId"),
 
-                Nome = reader.GetString("Nome"),
+                UsuarioId = reader.IsDBNull(reader.GetOrdinal("UsuarioId"))
+                    ? 0
+                    : reader.GetInt32("UsuarioId"),
 
-                Email = reader.GetString("Email"),
+                Nome = reader.IsDBNull(reader.GetOrdinal("Nome"))
+                    ? string.Empty
+                    : reader.GetString("Nome"),
+
+                Email = reader.IsDBNull(reader.GetOrdinal("Email"))
+                    ? string.Empty
+                    : reader.GetString("Email"),
 
                 Telefone = reader.IsDBNull(reader.GetOrdinal("Telefone"))
                     ? string.Empty
                     : reader.GetString("Telefone"),
 
-                DataCadastro = reader.GetDateTime("DataCadastro")
+                DataCadastro = reader.IsDBNull(reader.GetOrdinal("DataCadastro"))
+                    ? DateTime.MinValue
+                    : reader.GetDateTime("DataCadastro")
             });
         }
 

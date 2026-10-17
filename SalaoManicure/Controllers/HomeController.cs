@@ -1,32 +1,30 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using SalaoManicure.Models;
+using SalaoManicure.Repository.Contract;
 
 namespace SalaoManicure.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IDisponibilidadeRepository _disponibilidadeRepository;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(
+            IDisponibilidadeRepository disponibilidadeRepository)
         {
-            _logger = logger;
+            _disponibilidadeRepository = disponibilidadeRepository;
         }
 
+        [HttpGet]
         public IActionResult Index()
         {
-            return View();
-        }
+            var disponibilidades =
+                _disponibilidadeRepository
+                    .Listar()
+                    .Where(x => x.Data.Date >= DateTime.Today)
+                    .OrderBy(x => x.Data)
+                    .ThenBy(x => x.Horario)
+                    .ToList();
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(disponibilidades);
         }
     }
 }

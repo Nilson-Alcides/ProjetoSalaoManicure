@@ -50,12 +50,12 @@
                     <!-- PROFISSIONAL -->
                     <div class="col-md-6">
 
-                        <label asp-for="ProfissionalId"
+                        <label asp-for="Id"
                                class="form-label">
                             Profissional
                         </label>
 
-                        <select asp-for="ProfissionalId"
+                        <select asp-for="Id"
                                 class="form-select">
 
                             <option value="0">
@@ -71,7 +71,7 @@
 
                         </select>
 
-                        <span asp-validation-for="ProfissionalId"
+                        <span asp-validation-for="Id"
                               class="text-danger">
                         </span>
 
@@ -121,11 +121,11 @@
 
                         <div class="form-check form-switch">
 
-                            <input asp-for="Ativo"
+                            <input asp-for="Disponivel"
                                    class="form-check-input"
                                    type="checkbox" />
 
-                            <label asp-for="Ativo"
+                            <label asp-for="Disponivel"
                                    class="form-check-label">
                                 Disponibilidade ativa
                             </label>

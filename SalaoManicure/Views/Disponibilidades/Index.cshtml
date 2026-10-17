@@ -49,10 +49,7 @@
                             <tr>
 
                                 <th>ID</th>
-
-                                <th>
-                                    Profissional
-                                </th>
+                               
 
                                 <th>
                                     Data
@@ -83,30 +80,7 @@
                                     <!-- ID -->
                                     <td>
                                         @disponibilidade.Id
-                                    </td>
-
-
-                                    <!-- PROFISSIONAL -->
-                                    <td>
-
-                                        <div class="d-flex align-items-center">
-
-                                            <div class="bg-primary bg-opacity-10
-                                                                rounded-circle
-                                                                p-2 me-2">
-
-                                                <i class="bi bi-person text-primary">
-                                                </i>
-
-                                            </div>
-
-                                            <span>
-                                                @disponibilidade.Profissional?.Nome
-                                            </span>
-
-                                        </div>
-
-                                    </td>
+                                    </td>                                   
 
 
                                     <!-- DATA -->
@@ -136,7 +110,7 @@
                                     <!-- STATUS -->
                                     <td>
 
-                                        @if (disponibilidade.Ativo)
+                                        @if (disponibilidade.Disponivel)
                                         {
                                             <span class="badge bg-success">
 
@@ -164,7 +138,8 @@
                                         <div class="btn-group"
                                              role="group">
 
-                                            <a asp-action="Editar"
+                                            <a asp-controller="Disponibilidades"
+                                                asp-action="Editar"
                                                asp-route-id="@disponibilidade.Id"
                                                class="btn btn-sm btn-outline-primary"
                                                title="Editar">

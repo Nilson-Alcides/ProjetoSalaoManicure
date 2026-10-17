@@ -1,8 +1,318 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<SalaoManicure.Models.Disponibilidade>
+
+@{
+    ViewData["Title"] = "Agendamento";
+
+
+var disponibilidades = Model?
+    .Where(x => x.Disponivel && x.Data.Date >= DateTime.Today)
+    .OrderBy(x => x.Data)
+    .ThenBy(x => x.Horario)
+    .ToList()
+    ?? new List<SalaoManicure.Models.Disponibilidade>();
+
+    var cultura = new System.Globalization.CultureInfo("pt-BR");
+
+    var datasDisponiveis = disponibilidades
+        .Select(x => x.Data.Date)
+        .Distinct()
+        .Count();
+
+    var horariosDisponiveis = disponibilidades.Count;
+
+
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+    .card-horario {
+        width: 20%;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    @@media (max-width: 991px) {
+        .card-horario {
+            width: 25%;
+        }
+    }
+
+    @@media (max-width: 767px) {
+        .card-horario {
+            width: 33.333333%;
+        }
+    }
+
+    @@media (max-width: 575px) {
+        .card-horario {
+            width: 50%;
+        }
+    }
+
+    .horario-card {
+        transition: all 0.2s ease;
+        border: 1px solid #dee2e6;
+    }
+
+    .btn-agendar {       
+        background: #e9739e;
+    }
+
+        .horario-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 .4rem 1rem rgba(0,0,0,.12) !important;
+            border-color: #a23b68;
+        }
+
+    .btn-agendar {
+        width: 100%;
+    }
+
+    .data-header {
+        border-left: 4px solid #a23b68;
+    }
+
+    .bg-primary {       
+        background-color: #CC3EAC !important;
+    }
+
+    .bg-success {       
+        background-color: rgb(107 25 135) !important;
+    }
+</style>
+
+<div class="container-fluid py-4">
+
+    ```
+    <!-- Cabeçalho -->
+    <div class="text-center mb-4">
+
+        <h1 class="fw-bold mb-2">
+            <i class="bi bi-calendar-check text-primary me-2"></i>
+            Agende seu horário
+        </h1>
+
+        <p class="text-muted mb-0">
+            Escolha uma data e um horário disponível para realizar seu agendamento.
+        </p>
+
+    </div>
+
+
+    <!-- Resumo -->
+    <div class="row justify-content-center g-3 mb-4">
+
+        <div class="col-md-4 col-lg-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body d-flex align-items-center">
+
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                        <i class="bi bi-calendar3 fs-3 text-primary"></i>
+                    </div>
+
+                    <div>
+
+                        <div class="text-muted small">
+                            Datas disponíveis
+                        </div>
+
+                        <h3 class="mb-0 fw-bold">
+                            @datasDisponiveis
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4 col-lg-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body d-flex align-items-center">
+
+                    <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                        <i class="bi bi-clock fs-3 text-success"></i>
+                    </div>
+
+                    <div>
+
+                        <div class="text-muted small">
+                            Horários disponíveis
+                        </div>
+
+                        <h3 class="mb-0 fw-bold text-success">
+                            @horariosDisponiveis
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    @if (!disponibilidades.Any())
+    {
+        <!-- Nenhum horário -->
+        <div class="row justify-content-center">
+
+            <div class="col-md-8 col-lg-6">
+
+                <div class="card border-0 shadow-sm">
+
+                    <div class="card-body text-center py-5">
+
+                        <i class="bi bi-calendar-x display-3 text-muted"></i>
+
+                        <h4 class="fw-bold mt-3">
+                            Nenhum horário disponível
+                        </h4>
+
+                        <p class="text-muted mb-0">
+                            No momento não existem horários disponíveis
+                            para agendamento.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        @foreach (var grupo in disponibilidades.GroupBy(x => x.Data.Date))
+        {
+            var data = grupo.Key;
+
+            <div class="card border-0 shadow-sm mb-4">
+
+                <!-- Cabeçalho da data -->
+                <div class="card-header bg-white border-0 p-3">
+
+                    <div class="data-header ps-3">
+
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <div class="d-flex align-items-center">
+
+                                <!-- Dia -->
+                                <div class="bg-primary text-white rounded-3 text-center p-2 me-3"
+                                     style="width: 60px;">
+
+                                    <div class="small text-uppercase">
+                                        @data.ToString("MMM", cultura)
+                                    </div>
+
+                                    <div class="fs-4 fw-bold">
+                                        @data.ToString("dd")
+                                    </div>
+
+                                </div>
+
+                                <!-- Data completa -->
+                                <div>
+
+                                    <h5 class="fw-bold mb-0 text-capitalize">
+                                        @data.ToString("dddd", cultura)
+                                    </h5>
+
+                                    <small class="text-muted">
+                                        @data.ToString("dd 'de' MMMM 'de' yyyy", cultura)
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                            <!-- Quantidade -->
+                            <span class="badge bg-light text-dark border">
+
+                                <i class="bi bi-clock me-1"></i>
+
+                                @grupo.Count() horário(s)
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Horários -->
+                <div class="card-body pt-0">
+
+                    <div class="row g-2">
+
+                        @foreach (var item in grupo)
+                        {
+                            <div class="card-horario">
+
+                                <div class="card horario-card shadow-sm h-100">
+
+                                    <div class="card-body p-3 text-center">
+
+                                        <div class="mb-2">
+
+                                            <i class="bi bi-clock text-primary fs-4"></i>
+
+                                            <div class="fs-4 fw-bold">
+                                                @item.Horario.ToString(@"hh\:mm")
+                                            </div>
+
+                                        </div>
+
+                                        <span class="badge bg-success mb-3">
+
+                                            <i class="bi bi-check-circle me-1"></i>
+
+                                            Disponível
+
+                                        </span>
+
+                                        <div>
+
+                                            <a asp-controller="AgendamentoCliente"
+                                               asp-action="Cadastrar"
+                                               asp-route-disponibilidadeId="@item.Id"
+                                               class="btn btn-sm btn-agendar">
+
+                                                <i class="bi bi-calendar-plus me-1"></i>
+
+                                                Agendar
+
+                                            </a>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+    }
+    
+
 </div>

@@ -1,624 +1,624 @@
 ﻿
-using Microsoft.AspNetCore.Mvc;
-using SalaoManicure.Models;
-using SalaoManicure.Repository.Contract;
-
-namespace SalaoManicure.Controllers
-{
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AgendamentosApiController : ControllerBase
-    {
-        private readonly IAgendamentoRepository _agendamentoRepository;
-        private readonly IClienteRepository _clienteRepository;
-        private readonly IProfissionalRepository _profissionalRepository;
-        private readonly IServicoRepository _servicoRepository;
-        private readonly IDisponibilidadeRepository _disponibilidadeRepository;
-        private readonly IBloqueioRepository _bloqueioRepository;
-
-        public AgendamentosApiController(
-            IAgendamentoRepository agendamentoRepository,
-            IClienteRepository clienteRepository,
-            IProfissionalRepository profissionalRepository,
-            IServicoRepository servicoRepository,
-            IDisponibilidadeRepository disponibilidadeRepository,
-            IBloqueioRepository bloqueioRepository)
-        {
-            _agendamentoRepository = agendamentoRepository;
-            _clienteRepository = clienteRepository;
-            _profissionalRepository = profissionalRepository;
-            _servicoRepository = servicoRepository;
-            _disponibilidadeRepository = disponibilidadeRepository;
-            _bloqueioRepository = bloqueioRepository;
-        }
-
-
-        // ============================================================
-        // GET: api/AgendamentosApi
-        // LISTAR TODOS
-        // ============================================================
-
-        [HttpGet]
-        public IActionResult Listar()
-        {
-            var agendamentos =
-                _agendamentoRepository.Listar();
-
-            var resultado =
-                agendamentos.Select(a => new
-                {
-                    id = a.Id,
-
-                    data = a.Data.ToString("yyyy-MM-dd"),
-
-                    horario =
-                        a.Horario.ToString(@"hh\:mm"),
-
-                    clienteId =
-                        a.ClienteId,
-
-                    cliente =
-                        a.Cliente?.Nome,
-
-                    profissionalId =
-                        a.ProfissionalId,
-
-                    profissional =
-                        a.Profissional?.Nome,
-
-                    servicoId =
-                        a.ServicoId,
-
-                    servico =
-                        a.Servico?.Nome,
-
-                    preco =
-                        a.Servico?.Preco ?? 0,
-
-                    status =
-                        a.Status
-                })
-                .ToList();
-
-            return Ok(resultado);
-        }
-
-
-        // ============================================================
-        // GET: api/AgendamentosApi/5
-        // BUSCAR POR ID
-        // ============================================================
-
-        [HttpGet("{id}")]
-        public IActionResult BuscarPorId(int id)
-        {
-            var agendamento =
-                _agendamentoRepository.BuscarPorId(id);
-
-            if (agendamento == null)
-            {
-                return NotFound(new
-                {
-                    mensagem = "Agendamento não encontrado."
-                });
-            }
+//using Microsoft.AspNetCore.Mvc;
+//using SalaoManicure.Models;
+//using SalaoManicure.Repository.Contract;
+
+//namespace SalaoManicure.Controllers
+//{
+//    [ApiController]
+//    [Route("api/[controller]")]
+//    public class AgendamentosApiController : ControllerBase
+//    {
+//        private readonly IAgendamentoRepository _agendamentoRepository;
+//        private readonly IClienteRepository _clienteRepository;
+//        private readonly IProfissionalRepository _profissionalRepository;
+//        private readonly IServicoRepository _servicoRepository;
+//        private readonly IDisponibilidadeRepository _disponibilidadeRepository;
+//        private readonly IBloqueioRepository _bloqueioRepository;
+
+//        public AgendamentosApiController(
+//            IAgendamentoRepository agendamentoRepository,
+//            IClienteRepository clienteRepository,
+//            IProfissionalRepository profissionalRepository,
+//            IServicoRepository servicoRepository,
+//            IDisponibilidadeRepository disponibilidadeRepository,
+//            IBloqueioRepository bloqueioRepository)
+//        {
+//            _agendamentoRepository = agendamentoRepository;
+//            _clienteRepository = clienteRepository;
+//            _profissionalRepository = profissionalRepository;
+//            _servicoRepository = servicoRepository;
+//            _disponibilidadeRepository = disponibilidadeRepository;
+//            _bloqueioRepository = bloqueioRepository;
+//        }
+
+
+//        // ============================================================
+//        // GET: api/AgendamentosApi
+//        // LISTAR TODOS
+//        // ============================================================
+
+//        [HttpGet]
+//        public IActionResult Listar()
+//        {
+//            var agendamentos =
+//                _agendamentoRepository.Listar();
+
+//            var resultado =
+//                agendamentos.Select(a => new
+//                {
+//                    id = a.Id,
+
+//                    data = a.Data.ToString("yyyy-MM-dd"),
+
+//                    horario =
+//                        a.Horario.ToString(@"hh\:mm"),
+
+//                    clienteId =
+//                        a.ClienteId,
+
+//                    cliente =
+//                        a.Cliente?.Nome,
+
+//                    profissionalId =
+//                        a.ProfissionalId,
+
+//                    profissional =
+//                        a.Profissional?.Nome,
+
+//                    servicoId =
+//                        a.ServicoId,
+
+//                    servico =
+//                        a.Servico?.Nome,
+
+//                    preco =
+//                        a.Servico?.Preco ?? 0,
+
+//                    status =
+//                        a.Status
+//                })
+//                .ToList();
+
+//            return Ok(resultado);
+//        }
+
+
+//        // ============================================================
+//        // GET: api/AgendamentosApi/5
+//        // BUSCAR POR ID
+//        // ============================================================
+
+//        [HttpGet("{id}")]
+//        public IActionResult BuscarPorId(int id)
+//        {
+//            var agendamento =
+//                _agendamentoRepository.BuscarPorId(id);
+
+//            if (agendamento == null)
+//            {
+//                return NotFound(new
+//                {
+//                    mensagem = "Agendamento não encontrado."
+//                });
+//            }
 
-            var resultado = new
-            {
-                id = agendamento.Id,
+//            var resultado = new
+//            {
+//                id = agendamento.Id,
 
-                data =
-                    agendamento.Data.ToString("yyyy-MM-dd"),
+//                data =
+//                    agendamento.Data.ToString("yyyy-MM-dd"),
 
-                horario =
-                    agendamento.Horario.ToString(@"hh\:mm"),
+//                horario =
+//                    agendamento.Horario.ToString(@"hh\:mm"),
 
-                clienteId =
-                    agendamento.ClienteId,
+//                clienteId =
+//                    agendamento.ClienteId,
 
-                cliente =
-                    agendamento.Cliente?.Nome,
+//                cliente =
+//                    agendamento.Cliente?.Nome,
 
-                profissionalId =
-                    agendamento.ProfissionalId,
+//                profissionalId =
+//                    agendamento.ProfissionalId,
 
-                profissional =
-                    agendamento.Profissional?.Nome,
+//                profissional =
+//                    agendamento.Profissional?.Nome,
 
-                servicoId =
-                    agendamento.ServicoId,
+//                servicoId =
+//                    agendamento.ServicoId,
 
-                servico =
-                    agendamento.Servico?.Nome,
+//                servico =
+//                    agendamento.Servico?.Nome,
 
-                preco =
-                    agendamento.Servico?.Preco ?? 0,
+//                preco =
+//                    agendamento.Servico?.Preco ?? 0,
 
-                status =
-                    agendamento.Status
-            };
+//                status =
+//                    agendamento.Status
+//            };
 
-            return Ok(resultado);
-        }
-
-
-        // ============================================================
-        // POST: api/AgendamentosApi
-        // CADASTRAR
-        // ============================================================
+//            return Ok(resultado);
+//        }
+
+
+//        // ============================================================
+//        // POST: api/AgendamentosApi
+//        // CADASTRAR
+//        // ============================================================
 
-        [HttpPost]
-        public IActionResult Cadastrar(
-            [FromBody] Agendamento agendamento)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+//        [HttpPost]
+//        public IActionResult Cadastrar(
+//            [FromBody] Agendamento agendamento)
+//        {
+//            if (!ModelState.IsValid)
+//            {
+//                return BadRequest(ModelState);
+//            }
 
-
-            // --------------------------------------------------------
-            // STATUS PADRÃO
-            // --------------------------------------------------------
+
+//            // --------------------------------------------------------
+//            // STATUS PADRÃO
+//            // --------------------------------------------------------
 
-            agendamento.Status = "Agendado";
+//            agendamento.Status = "Agendado";
 
 
-            // --------------------------------------------------------
-            // VERIFICAR HORÁRIO
-            // --------------------------------------------------------
+//            // --------------------------------------------------------
+//            // VERIFICAR HORÁRIO
+//            // --------------------------------------------------------
 
-            if (!HorarioEstaDisponivel(agendamento))
-            {
-                return BadRequest(new
-                {
-                    mensagem =
-                        "O horário selecionado não está disponível."
-                });
-            }
+//            if (!HorarioEstaDisponivel(agendamento))
+//            {
+//                return BadRequest(new
+//                {
+//                    mensagem =
+//                        "O horário selecionado não está disponível."
+//                });
+//            }
 
 
-            // --------------------------------------------------------
-            // VERIFICAR SERVIÇO
-            // --------------------------------------------------------
+//            // --------------------------------------------------------
+//            // VERIFICAR SERVIÇO
+//            // --------------------------------------------------------
 
-            var servico =
-                _servicoRepository
-                    .Listar()
-                    .FirstOrDefault(s =>
-                        s.Id == agendamento.ServicoId &&
-                        s.Ativo);
+//            var servico =
+//                _servicoRepository
+//                    .Listar()
+//                    .FirstOrDefault(s =>
+//                        s.Id == agendamento.ServicoId &&
+//                        s.Ativo);
 
-            if (servico == null)
-            {
-                return BadRequest(new
-                {
-                    mensagem =
-                        "O serviço selecionado não existe ou está inativo."
-                });
-            }
+//            if (servico == null)
+//            {
+//                return BadRequest(new
+//                {
+//                    mensagem =
+//                        "O serviço selecionado não existe ou está inativo."
+//                });
+//            }
 
 
-            // --------------------------------------------------------
-            // CADASTRAR
-            // --------------------------------------------------------
+//            // --------------------------------------------------------
+//            // CADASTRAR
+//            // --------------------------------------------------------
 
-            _agendamentoRepository.Cadastrar(
-                agendamento);
-
+//            _agendamentoRepository.Cadastrar(
+//                agendamento);
+
 
-            return CreatedAtAction(
-                nameof(BuscarPorId),
-                new
-                {
-                    id = agendamento.Id
-                },
-                new
-                {
-                    mensagem =
-                        "Agendamento realizado com sucesso.",
-
-                    id =
-                        agendamento.Id,
-
-                    status =
-                        agendamento.Status
-                });
-        }
+//            return CreatedAtAction(
+//                nameof(BuscarPorId),
+//                new
+//                {
+//                    id = agendamento.Id
+//                },
+//                new
+//                {
+//                    mensagem =
+//                        "Agendamento realizado com sucesso.",
+
+//                    id =
+//                        agendamento.Id,
+
+//                    status =
+//                        agendamento.Status
+//                });
+//        }
 
 
-        // ============================================================
-        // PUT: api/AgendamentosApi/5
-        // ATUALIZAR
-        // ============================================================
+//        // ============================================================
+//        // PUT: api/AgendamentosApi/5
+//        // ATUALIZAR
+//        // ============================================================
 
-        [HttpPut("{id}")]
-        public IActionResult Atualizar(
-            int id,
-            [FromBody] Agendamento agendamento)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-
-            // --------------------------------------------------------
-            // BUSCAR AGENDAMENTO
-            // --------------------------------------------------------
-
-            var existente =
-                _agendamentoRepository.BuscarPorId(id);
-
-            if (existente == null)
-            {
-                return NotFound(new
-                {
-                    mensagem =
-                        "Agendamento não encontrado."
-                });
-            }
+//        [HttpPut("{id}")]
+//        public IActionResult Atualizar(
+//            int id,
+//            [FromBody] Agendamento agendamento)
+//        {
+//            if (!ModelState.IsValid)
+//            {
+//                return BadRequest(ModelState);
+//            }
+
+
+//            // --------------------------------------------------------
+//            // BUSCAR AGENDAMENTO
+//            // --------------------------------------------------------
+
+//            var existente =
+//                _agendamentoRepository.BuscarPorId(id);
+
+//            if (existente == null)
+//            {
+//                return NotFound(new
+//                {
+//                    mensagem =
+//                        "Agendamento não encontrado."
+//                });
+//            }
 
 
-            // --------------------------------------------------------
-            // GARANTIR ID
-            // --------------------------------------------------------
+//            // --------------------------------------------------------
+//            // GARANTIR ID
+//            // --------------------------------------------------------
 
-            agendamento.Id = id;
+//            agendamento.Id = id;
 
 
-            // --------------------------------------------------------
-            // NÃO PERMITIR ALTERAÇÃO AUTOMÁTICA DO STATUS
-            // --------------------------------------------------------
+//            // --------------------------------------------------------
+//            // NÃO PERMITIR ALTERAÇÃO AUTOMÁTICA DO STATUS
+//            // --------------------------------------------------------
 
-            if (string.IsNullOrWhiteSpace(
-                agendamento.Status))
-            {
-                agendamento.Status =
-                    existente.Status;
-            }
-
-
-            // --------------------------------------------------------
-            // VERIFICAR HORÁRIO
-            // --------------------------------------------------------
-
-            if (!HorarioEstaDisponivel(
-                    agendamento,
-                    id))
-            {
-                return BadRequest(new
-                {
-                    mensagem =
-                        "O horário selecionado não está disponível."
-                });
-            }
-
-
-            // --------------------------------------------------------
-            // VERIFICAR SERVIÇO
-            // --------------------------------------------------------
-
-            var servico =
-                _servicoRepository
-                    .Listar()
-                    .FirstOrDefault(s =>
-                        s.Id == agendamento.ServicoId &&
-                        s.Ativo);
-
-            if (servico == null)
-            {
-                return BadRequest(new
-                {
-                    mensagem =
-                        "O serviço selecionado não existe ou está inativo."
-                });
-            }
-
-
-            // --------------------------------------------------------
-            // ATUALIZAR
-            // --------------------------------------------------------
-
-            _agendamentoRepository.Atualizar(
-                agendamento);
-
-
-            return Ok(new
-            {
-                mensagem =
-                    "Agendamento atualizado com sucesso."
-            });
-        }
+//            if (string.IsNullOrWhiteSpace(
+//                agendamento.Status))
+//            {
+//                agendamento.Status =
+//                    existente.Status;
+//            }
+
+
+//            // --------------------------------------------------------
+//            // VERIFICAR HORÁRIO
+//            // --------------------------------------------------------
+
+//            if (!HorarioEstaDisponivel(
+//                    agendamento,
+//                    id))
+//            {
+//                return BadRequest(new
+//                {
+//                    mensagem =
+//                        "O horário selecionado não está disponível."
+//                });
+//            }
+
+
+//            // --------------------------------------------------------
+//            // VERIFICAR SERVIÇO
+//            // --------------------------------------------------------
+
+//            var servico =
+//                _servicoRepository
+//                    .Listar()
+//                    .FirstOrDefault(s =>
+//                        s.Id == agendamento.ServicoId &&
+//                        s.Ativo);
+
+//            if (servico == null)
+//            {
+//                return BadRequest(new
+//                {
+//                    mensagem =
+//                        "O serviço selecionado não existe ou está inativo."
+//                });
+//            }
+
+
+//            // --------------------------------------------------------
+//            // ATUALIZAR
+//            // --------------------------------------------------------
+
+//            _agendamentoRepository.Atualizar(
+//                agendamento);
+
+
+//            return Ok(new
+//            {
+//                mensagem =
+//                    "Agendamento atualizado com sucesso."
+//            });
+//        }
 
 
-        // ============================================================
-        // DELETE: api/AgendamentosApi/5
-        // EXCLUIR
-        // ============================================================
-
-        [HttpDelete("{id}")]
-        public IActionResult Excluir(int id)
-        {
-            var agendamento =
-                _agendamentoRepository.BuscarPorId(id);
+//        // ============================================================
+//        // DELETE: api/AgendamentosApi/5
+//        // EXCLUIR
+//        // ============================================================
+
+//        [HttpDelete("{id}")]
+//        public IActionResult Excluir(int id)
+//        {
+//            var agendamento =
+//                _agendamentoRepository.BuscarPorId(id);
 
-            if (agendamento == null)
-            {
-                return NotFound(new
-                {
-                    mensagem =
-                        "Agendamento não encontrado."
-                });
-            }
+//            if (agendamento == null)
+//            {
+//                return NotFound(new
+//                {
+//                    mensagem =
+//                        "Agendamento não encontrado."
+//                });
+//            }
 
-
-            _agendamentoRepository.Excluir(id);
+
+//            _agendamentoRepository.Excluir(id);
 
 
-            return Ok(new
-            {
-                mensagem =
-                    "Agendamento excluído com sucesso."
-            });
-        }
+//            return Ok(new
+//            {
+//                mensagem =
+//                    "Agendamento excluído com sucesso."
+//            });
+//        }
 
 
-        // ============================================================
-        // GET:
-        // api/AgendamentosApi/horarios-disponiveis
-        // ============================================================
+//        // ============================================================
+//        // GET:
+//        // api/AgendamentosApi/horarios-disponiveis
+//        // ============================================================
 
-        [HttpGet("horarios-disponiveis")]
-        public IActionResult HorariosDisponiveis(
-            int profissionalId,
-            DateTime data,
-            int? agendamentoId = null)
-        {
-            // --------------------------------------------------------
-            // 1. VALIDAR PROFISSIONAL
-            // --------------------------------------------------------
+//        [HttpGet("horarios-disponiveis")]
+//        public IActionResult HorariosDisponiveis(
+//            int profissionalId,
+//            DateTime data,
+//            int? agendamentoId = null)
+//        {
+//            // --------------------------------------------------------
+//            // 1. VALIDAR PROFISSIONAL
+//            // --------------------------------------------------------
 
-            if (profissionalId <= 0)
-            {
-                return BadRequest(new
-                {
-                    mensagem =
-                        "Profissional inválido."
-                });
-            }
+//            if (profissionalId <= 0)
+//            {
+//                return BadRequest(new
+//                {
+//                    mensagem =
+//                        "Profissional inválido."
+//                });
+//            }
 
-
-            // --------------------------------------------------------
-            // 2. DISPONIBILIDADES
-            // --------------------------------------------------------
-
-            var disponibilidades =
-                _disponibilidadeRepository.Listar()
-                    .Where(d =>
-                        d.ProfissionalId ==
-                            profissionalId &&
+
+//            // --------------------------------------------------------
+//            // 2. DISPONIBILIDADES
+//            // --------------------------------------------------------
+
+//            var disponibilidades =
+//                _disponibilidadeRepository.Listar()
+//                    .Where(d =>
+//                        d.ProfissionalId ==
+//                            profissionalId &&
 
-                        d.Data.Date ==
-                            data.Date &&
+//                        d.Data.Date ==
+//                            data.Date &&
 
-                        d.Ativo)
-                    .OrderBy(d => d.Horario)
-                    .ToList();
+//                        d.Ativo)
+//                    .OrderBy(d => d.Horario)
+//                    .ToList();
 
 
-            if (!disponibilidades.Any())
-            {
-                return Ok(new List<object>());
-            }
+//            if (!disponibilidades.Any())
+//            {
+//                return Ok(new List<object>());
+//            }
 
 
-            // --------------------------------------------------------
-            // 3. BLOQUEIOS
-            // --------------------------------------------------------
-
-            var bloqueios =
-                _bloqueioRepository.Listar()
-                    .Where(b =>
-                        b.ProfissionalId ==
-                            profissionalId &&
+//            // --------------------------------------------------------
+//            // 3. BLOQUEIOS
+//            // --------------------------------------------------------
+
+//            var bloqueios =
+//                _bloqueioRepository.Listar()
+//                    .Where(b =>
+//                        b.ProfissionalId ==
+//                            profissionalId &&
 
-                        b.Data.Date ==
-                            data.Date &&
+//                        b.Data.Date ==
+//                            data.Date &&
 
-                        b.Ativo)
-                    .ToList();
+//                        b.Ativo)
+//                    .ToList();
 
 
-            // --------------------------------------------------------
-            // 4. DIA TODO BLOQUEADO
-            // --------------------------------------------------------
+//            // --------------------------------------------------------
+//            // 4. DIA TODO BLOQUEADO
+//            // --------------------------------------------------------
 
-            if (bloqueios.Any(
-                b => !b.Horario.HasValue))
-            {
-                return Ok(new List<object>());
-            }
+//            if (bloqueios.Any(
+//                b => !b.Horario.HasValue))
+//            {
+//                return Ok(new List<object>());
+//            }
 
 
-            // --------------------------------------------------------
-            // 5. AGENDAMENTOS EXISTENTES
-            // --------------------------------------------------------
+//            // --------------------------------------------------------
+//            // 5. AGENDAMENTOS EXISTENTES
+//            // --------------------------------------------------------
 
-            var agendamentos =
-                _agendamentoRepository.Listar()
-                    .Where(a =>
-                        a.ProfissionalId ==
-                            profissionalId &&
+//            var agendamentos =
+//                _agendamentoRepository.Listar()
+//                    .Where(a =>
+//                        a.ProfissionalId ==
+//                            profissionalId &&
 
-                        a.Data.Date ==
-                            data.Date &&
+//                        a.Data.Date ==
+//                            data.Date &&
 
-                        a.Status != "Cancelado" &&
+//                        a.Status != "Cancelado" &&
 
-                        (
-                            !agendamentoId.HasValue ||
-                            a.Id != agendamentoId.Value
-                        ))
-                    .ToList();
+//                        (
+//                            !agendamentoId.HasValue ||
+//                            a.Id != agendamentoId.Value
+//                        ))
+//                    .ToList();
 
 
-            // --------------------------------------------------------
-            // 6. FILTRAR HORÁRIOS
-            // --------------------------------------------------------
+//            // --------------------------------------------------------
+//            // 6. FILTRAR HORÁRIOS
+//            // --------------------------------------------------------
 
-            var horarios =
-                disponibilidades
-                    .Where(d =>
+//            var horarios =
+//                disponibilidades
+//                    .Where(d =>
 
-                        !bloqueios.Any(b =>
-                            b.Horario.HasValue &&
-                            b.Horario.Value ==
-                                d.Horario)
+//                        !bloqueios.Any(b =>
+//                            b.Horario.HasValue &&
+//                            b.Horario.Value ==
+//                                d.Horario)
 
-                        &&
+//                        &&
 
-                        !agendamentos.Any(a =>
-                            a.Horario ==
-                                d.Horario)
+//                        !agendamentos.Any(a =>
+//                            a.Horario ==
+//                                d.Horario)
 
-                    )
-                    .Select(d => new
-                    {
-                        valor =
-                            d.Horario.ToString(
-                                @"hh\:mm"),
+//                    )
+//                    .Select(d => new
+//                    {
+//                        valor =
+//                            d.Horario.ToString(
+//                                @"hh\:mm"),
 
-                        texto =
-                            d.Horario.ToString(
-                                @"hh\:mm")
-                    })
-                    .ToList();
+//                        texto =
+//                            d.Horario.ToString(
+//                                @"hh\:mm")
+//                    })
+//                    .ToList();
 
 
-            return Ok(horarios);
-        }
+//            return Ok(horarios);
+//        }
 
 
-        // ============================================================
-        // VERIFICAR HORÁRIO
-        // ============================================================
+//        // ============================================================
+//        // VERIFICAR HORÁRIO
+//        // ============================================================
 
-        private bool HorarioEstaDisponivel(
-            Agendamento agendamento,
-            int? idIgnorar = null)
-        {
-            // --------------------------------------------------------
-            // 1. DISPONIBILIDADE
-            // --------------------------------------------------------
+//        private bool HorarioEstaDisponivel(
+//            Agendamento agendamento,
+//            int? idIgnorar = null)
+//        {
+//            // --------------------------------------------------------
+//            // 1. DISPONIBILIDADE
+//            // --------------------------------------------------------
 
-            var disponibilidade =
-                _disponibilidadeRepository.Listar()
-                    .FirstOrDefault(d =>
-                        d.ProfissionalId ==
-                            agendamento.ProfissionalId &&
+//            var disponibilidade =
+//                _disponibilidadeRepository.Listar()
+//                    .FirstOrDefault(d =>
+//                        d.ProfissionalId ==
+//                            agendamento.ProfissionalId &&
 
-                        d.Data.Date ==
-                            agendamento.Data.Date &&
+//                        d.Data.Date ==
+//                            agendamento.Data.Date &&
 
-                        d.Horario ==
-                            agendamento.Horario &&
+//                        d.Horario ==
+//                            agendamento.Horario &&
 
-                        d.Ativo);
+//                        d.Ativo);
 
 
-            if (disponibilidade == null)
-            {
-                return false;
-            }
+//            if (disponibilidade == null)
+//            {
+//                return false;
+//            }
 
 
-            // --------------------------------------------------------
-            // 2. BLOQUEIOS
-            // --------------------------------------------------------
+//            // --------------------------------------------------------
+//            // 2. BLOQUEIOS
+//            // --------------------------------------------------------
 
-            var bloqueios =
-                _bloqueioRepository.Listar()
-                    .Where(b =>
-                        b.ProfissionalId ==
-                            agendamento.ProfissionalId &&
+//            var bloqueios =
+//                _bloqueioRepository.Listar()
+//                    .Where(b =>
+//                        b.ProfissionalId ==
+//                            agendamento.ProfissionalId &&
 
-                        b.Data.Date ==
-                            agendamento.Data.Date &&
+//                        b.Data.Date ==
+//                            agendamento.Data.Date &&
 
-                        b.Ativo)
-                    .ToList();
+//                        b.Ativo)
+//                    .ToList();
 
 
-            // --------------------------------------------------------
-            // 3. DIA INTEIRO BLOQUEADO
-            // --------------------------------------------------------
+//            // --------------------------------------------------------
+//            // 3. DIA INTEIRO BLOQUEADO
+//            // --------------------------------------------------------
 
-            if (bloqueios.Any(
-                b => !b.Horario.HasValue))
-            {
-                return false;
-            }
+//            if (bloqueios.Any(
+//                b => !b.Horario.HasValue))
+//            {
+//                return false;
+//            }
 
 
-            // --------------------------------------------------------
-            // 4. HORÁRIO BLOQUEADO
-            // --------------------------------------------------------
+//            // --------------------------------------------------------
+//            // 4. HORÁRIO BLOQUEADO
+//            // --------------------------------------------------------
 
-            if (bloqueios.Any(b =>
-                b.Horario.HasValue &&
-                b.Horario.Value ==
-                    agendamento.Horario))
-            {
-                return false;
-            }
+//            if (bloqueios.Any(b =>
+//                b.Horario.HasValue &&
+//                b.Horario.Value ==
+//                    agendamento.Horario))
+//            {
+//                return false;
+//            }
 
 
-            // --------------------------------------------------------
-            // 5. OUTROS AGENDAMENTOS
-            // --------------------------------------------------------
+//            // --------------------------------------------------------
+//            // 5. OUTROS AGENDAMENTOS
+//            // --------------------------------------------------------
 
-            var agendamentos =
-                _agendamentoRepository.Listar()
-                    .Where(a =>
-                        a.ProfissionalId ==
-                            agendamento.ProfissionalId &&
+//            var agendamentos =
+//                _agendamentoRepository.Listar()
+//                    .Where(a =>
+//                        a.ProfissionalId ==
+//                            agendamento.ProfissionalId &&
 
-                        a.Data.Date ==
-                            agendamento.Data.Date &&
+//                        a.Data.Date ==
+//                            agendamento.Data.Date &&
 
-                        a.Horario ==
-                            agendamento.Horario &&
+//                        a.Horario ==
+//                            agendamento.Horario &&
 
-                        a.Status != "Cancelado")
-                    .ToList();
+//                        a.Status != "Cancelado")
+//                    .ToList();
 
 
-            // --------------------------------------------------------
-            // 6. IGNORAR O PRÓPRIO AGENDAMENTO
-            // --------------------------------------------------------
+//            // --------------------------------------------------------
+//            // 6. IGNORAR O PRÓPRIO AGENDAMENTO
+//            // --------------------------------------------------------
 
-            if (idIgnorar.HasValue)
-            {
-                agendamentos =
-                    agendamentos
-                        .Where(a =>
-                            a.Id != idIgnorar.Value)
-                        .ToList();
-            }
+//            if (idIgnorar.HasValue)
+//            {
+//                agendamentos =
+//                    agendamentos
+//                        .Where(a =>
+//                            a.Id != idIgnorar.Value)
+//                        .ToList();
+//            }
 
 
-            // --------------------------------------------------------
-            // 7. VERIFICAR CONFLITO
-            // --------------------------------------------------------
+//            // --------------------------------------------------------
+//            // 7. VERIFICAR CONFLITO
+//            // --------------------------------------------------------
 
-            if (agendamentos.Any())
-            {
-                return false;
-            }
+//            if (agendamentos.Any())
+//            {
+//                return false;
+//            }
 
 
-            return true;
-        }
-    }
-}
+//            return true;
+//        }
+//    }
+//}

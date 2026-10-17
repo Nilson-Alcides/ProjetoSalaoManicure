@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace SalaoManicure.Models
 {
@@ -7,19 +6,12 @@ namespace SalaoManicure.Models
     {
         public int Id { get; set; }
 
-        [Range(1, int.MaxValue,
-            ErrorMessage = "Selecione um profissional.")]
-        public int ProfissionalId { get; set; }
-
-        public Profissional? Profissional { get; set; }
-
         [Required(ErrorMessage = "Informe a data.")]
         public DateTime Data { get; set; }
 
         [Required(ErrorMessage = "Informe o horário.")]
         public TimeSpan Horario { get; set; }
-
-        public bool Ativo { get; set; } = true;
+        public Profissional? Profissional { get; set; }
+        public bool Disponivel { get; set; } = true;
     }
-}
-
+}   
