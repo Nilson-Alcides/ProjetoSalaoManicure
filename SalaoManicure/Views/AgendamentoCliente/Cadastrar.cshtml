@@ -19,13 +19,6 @@
         </p>
     </div>
 
-    @if (TempData["Sucesso"] != null)
-    {
-        <div class="alert alert-success">
-            @TempData["Sucesso"]
-        </div>
-    }
-
     @if (TempData["Erro"] != null)
     {
         <div class="alert alert-danger">
@@ -77,6 +70,7 @@
                         <select asp-for="ServicoId"
                                 asp-items="ViewBag.Servicos"
                                 class="form-select"
+                                id="ServicoId"
                                 required>
                             <option value="">Selecione o serviço</option>
                         </select>
@@ -131,9 +125,45 @@
 
                 </div>
 
-                <input type="hidden"
-                       asp-for="Status"
-                       value="Agendado" />
+                <!-- RESUMO DO PAGAMENTO -->
+                <div class="card bg-light border-0 mt-4"
+                     id="resumoPagamento"
+                     style="display:none;">
+
+                    <div class="card-body">
+
+                        <h5 class="mb-3">
+                            <i class="bi bi-wallet2 me-2"></i>
+                            Resumo do pagamento
+                        </h5>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Valor do serviço:</span>
+                            <strong id="valorServico">R$ 0,00</strong>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Sinal para reservar (30%):</span>
+                            <strong class="text-success"
+                                    id="valorSinal">R$ 0,00</strong>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            <span>Restante a pagar no salão:</span>
+                            <strong id="valorRestante">R$ 0,00</strong>
+                        </div>
+
+                        <div class="alert alert-info mt-3 mb-0">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Para confirmar sua reserva, será necessário pagar
+                            o sinal de 30% pelo Mercado Pago.
+                            O restante será pago diretamente no salão.
+                        </div>
+
+                    </div>
+                </div>
 
                 <hr class="my-4" />
 
@@ -142,8 +172,8 @@
                     <button type="submit"
                             class="btn btn-primary"
                             id="btnAgendar">
-                        <i class="bi bi-check-circle me-1"></i>
-                        Confirmar agendamento
+                        <i class="bi bi-credit-card me-1"></i>
+                        Agendar e pagar sinal
                     </button>
 
                     <a asp-controller="AgendamentoCliente"
@@ -162,6 +192,7 @@
 </div>
 
 @section Scripts {
+
     <partial name="_ValidationScriptsPartial" />
 
     <script>
@@ -169,6 +200,9 @@
 
             const profissionalSelect =
                 document.getElementById("ProfissionalId");
+
+            const servicoSelect =
+                document.getElementById("ServicoId");
 
             const dataInput =
                 document.getElementById("Data");
@@ -182,6 +216,66 @@
             const btnAgendar =
                 document.getElementById("btnAgendar");
 
+            const resumoPagamento =
+                document.getElementById("resumoPagamento");
+
+            // Dados dos serviços disponibilizados pelo servidor
+            const servicos = @Html.Raw(
+                            System.Text.Json.JsonSerializer.Serialize(
+                                    ((IEnumerable<SalaoManicure.Models.Servico>)ViewBag.ServicosDados)
+                                    .Select(s => new
+                                    {
+                                            id = s.Id,
+                                            nome = s.Nome,
+                                            preco = s.Preco
+                                    })
+                            )
+                    );
+
+        const formatarMoeda = valor =>
+            Number(valor).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+            });
+
+            // Atualizar resumo financeiro
+            function atualizarResumoPagamento() {
+
+                const servicoId = Number(servicoSelect.value);
+
+                const servico = servicos.find(
+                    s => s.id === servicoId
+                );
+
+                if (!servico) {
+                    resumoPagamento.style.display = "none";
+                    return;
+                }
+
+                const preco = Number(servico.preco);
+                const sinal = Math.round((preco * 0.30 + Number.EPSILON) * 100) / 100;
+                const restante = Math.round((preco - sinal) * 100) / 100;
+
+                document.getElementById("valorServico").textContent =
+                    formatarMoeda(preco);
+
+                document.getElementById("valorSinal").textContent =
+                    formatarMoeda(sinal);
+
+                document.getElementById("valorRestante").textContent =
+                    formatarMoeda(restante);
+
+                resumoPagamento.style.display = "block";
+            }
+
+            servicoSelect.addEventListener(
+                "change",
+                atualizarResumoPagamento
+            );
+
+            atualizarResumoPagamento();
+
+            // Consultar horários disponíveis
             async function carregarHorarios() {
 
                 const profissionalId = profissionalSelect.value;
@@ -189,8 +283,8 @@
 
                 horarioSelect.innerHTML = "";
 
-                // Não consulta sem profissional e data.
                 if (!profissionalId || !data) {
+
                     horarioSelect.add(
                         new Option(
                             "Selecione primeiro o profissional e a data",
@@ -199,6 +293,7 @@
                     );
 
                     horarioSelect.disabled = true;
+
                     mensagem.textContent =
                         "Selecione o profissional e a data para consultar os horários.";
 
@@ -215,6 +310,7 @@
                     "Consultando os horários disponíveis...";
 
                 try {
+
                     const url =
                         `/AgendamentoCliente/HorariosDisponiveis` +
                         `?profissionalId=${encodeURIComponent(profissionalId)}` +
@@ -235,6 +331,7 @@
                     );
 
                     if (!horarios || horarios.length === 0) {
+
                         horarioSelect.add(
                             new Option("Nenhum horário disponível", "")
                         );
@@ -247,9 +344,11 @@
                     }
 
                     horarios.forEach(function (item) {
+
                         horarioSelect.add(
                             new Option(item.texto, item.valor)
                         );
+
                     });
 
                     horarioSelect.disabled = false;
@@ -284,13 +383,11 @@
                 carregarHorarios
             );
 
-            // Atualiza a consulta se a página for reaberta
-            // com profissional e data já selecionados.
             if (profissionalSelect.value && dataInput.value) {
                 carregarHorarios();
             }
 
-            // Evita duplo envio pelo botão.
+            // Evitar duplo envio
             document.querySelector("form").addEventListener(
                 "submit",
                 function (event) {
@@ -301,18 +398,26 @@
                         event.preventDefault();
 
                         mensagem.textContent =
-                            "Selecione um horário disponível antes de confirmar.";
+                            "Selecione um horário disponível antes de continuar.";
 
                         horarioSelect.focus();
                         return;
                     }
 
+                    if (!servicoSelect.value) {
+                        event.preventDefault();
+                        servicoSelect.focus();
+                        return;
+                    }
+
                     btnAgendar.disabled = true;
+
                     btnAgendar.innerHTML =
                         '<span class="spinner-border spinner-border-sm me-1"></span>' +
-                        'Processando...';
+                        'Preparando pagamento...';
                 }
             );
+
         });
     </script>
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using SalaoManicure.Libraries.Filtro;
 using SalaoManicure.Models;
 using SalaoManicure.Repository.Contract;
+using SalaoManicure.Services.Contract;
 
 namespace SalaoManicure.Controllers
 {
@@ -15,6 +16,8 @@ namespace SalaoManicure.Controllers
         private readonly IServicoRepository _servicoRepository;
         private readonly IDisponibilidadeRepository _disponibilidadeRepository;
         private readonly IBloqueioRepository _bloqueioRepository;
+        private readonly IPagamentoRepository _pagamentoRepository;
+        private readonly IMercadoPagoService _mercadoPagoService;
 
         public AgendamentoClienteController(
             IAgendamentoRepository agendamentoRepository,
@@ -22,7 +25,10 @@ namespace SalaoManicure.Controllers
             IProfissionalRepository profissionalRepository,
             IServicoRepository servicoRepository,
             IDisponibilidadeRepository disponibilidadeRepository,
-            IBloqueioRepository bloqueioRepository)
+            IBloqueioRepository bloqueioRepository,
+            IPagamentoRepository pagamentoRepository,
+            IMercadoPagoService mercadoPagoService
+            )   
         {
             _agendamentoRepository = agendamentoRepository;
             _clienteRepository = clienteRepository;
@@ -30,6 +36,8 @@ namespace SalaoManicure.Controllers
             _servicoRepository = servicoRepository;
             _disponibilidadeRepository = disponibilidadeRepository;
             _bloqueioRepository = bloqueioRepository;
+            _pagamentoRepository = pagamentoRepository;
+            _mercadoPagoService = mercadoPagoService;
         }
 
         // ============================================================
@@ -84,7 +92,7 @@ namespace SalaoManicure.Controllers
             {
                 Data = DateTime.Today,
                 ClienteId = cliente.Id,
-                Status = "Agendado"
+                Status = "PendentePagamento"
             };
 
             return View(agendamento);
@@ -94,31 +102,86 @@ namespace SalaoManicure.Controllers
         // CADASTRAR - POST
         // ============================================================
 
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+
+        //public IActionResult Cadastrar(Agendamento agendamento)
+        //{
+        //    int? usuarioId =
+        //        HttpContext.Session.GetInt32("UsuarioId");
+
+        //    if (usuarioId == null)
+        //        return RedirectToAction("Login", "Auth");
+
+        //    var cliente =
+        //        _clienteRepository.BuscarPorUsuarioId(usuarioId.Value);
+
+        //    if (cliente == null)
+        //        return RedirectToAction("Index", "ClienteLogado");
+
+        //    // O cliente é definido pelo servidor, nunca pelo formulário.
+        //    agendamento.ClienteId = cliente.Id;
+        //    agendamento.Status = "PendentePagamento";
+
+        //    ModelState.Remove(nameof(Agendamento.ClienteId));
+        //    ModelState.Remove(nameof(Agendamento.Status));
+
+        //    // Não permite agendamentos em datas passadas.
+        //    if (agendamento.Data.Date < DateTime.Today)
+        //    {
+        //        ModelState.AddModelError(
+        //            nameof(Agendamento.Data),
+        //            "Não é possível agendar para uma data passada.");
+        //    }
+
+        //    if (!ModelState.IsValid)
+        //    {
+        //        CarregarDados();
+        //        return View(agendamento);
+        //    }
+
+        //    // Confere novamente a disponibilidade no servidor.
+        //    if (!HorarioEstaDisponivel(agendamento))
+        //    {
+        //        ModelState.AddModelError(
+        //            nameof(Agendamento.Horario),
+        //            "O horário selecionado não está disponível. Escolha outro horário.");
+
+        //        CarregarDados();
+        //        return View(agendamento);
+        //    }
+
+        //    int agendamentoId =
+        //    _agendamentoRepository.Cadastrar(agendamento);
+
+        //    TempData["AgendamentoId"] = agendamentoId;
+
+        //    return RedirectToAction(nameof(MeusAgendamentos));
+        //}
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-       
-        public IActionResult Cadastrar(Agendamento agendamento)
+        public async Task<IActionResult> Cadastrar(Agendamento agendamento)
         {
-            int? usuarioId =
-                HttpContext.Session.GetInt32("UsuarioId");
+            // 1. Verificar se o cliente está logado
+            int? usuarioId = HttpContext.Session.GetInt32("UsuarioId");
 
             if (usuarioId == null)
                 return RedirectToAction("Login", "Auth");
 
-            var cliente =
-                _clienteRepository.BuscarPorUsuarioId(usuarioId.Value);
+            var cliente = _clienteRepository.BuscarPorUsuarioId(usuarioId.Value);
 
             if (cliente == null)
                 return RedirectToAction("Index", "ClienteLogado");
 
-            // O cliente é definido pelo servidor, nunca pelo formulário.
+            // 2. O cliente e o status são definidos pelo servidor
             agendamento.ClienteId = cliente.Id;
             agendamento.Status = "PendentePagamento";
 
             ModelState.Remove(nameof(Agendamento.ClienteId));
             ModelState.Remove(nameof(Agendamento.Status));
 
-            // Não permite agendamentos em datas passadas.
+            // 3. Validar data
             if (agendamento.Data.Date < DateTime.Today)
             {
                 ModelState.AddModelError(
@@ -132,7 +195,7 @@ namespace SalaoManicure.Controllers
                 return View(agendamento);
             }
 
-            // Confere novamente a disponibilidade no servidor.
+            // 4. Verificar disponibilidade do horário
             if (!HorarioEstaDisponivel(agendamento))
             {
                 ModelState.AddModelError(
@@ -143,12 +206,111 @@ namespace SalaoManicure.Controllers
                 return View(agendamento);
             }
 
-            int agendamentoId =
-            _agendamentoRepository.Cadastrar(agendamento);
+            // 5. Buscar o serviço selecionado
+            var servico = _servicoRepository.Listar()
+                .FirstOrDefault(s =>
+                    s.Id == agendamento.ServicoId && s.Ativo);
 
-            TempData["AgendamentoId"] = agendamentoId;
+            if (servico == null)
+            {
+                ModelState.AddModelError(
+                    nameof(Agendamento.ServicoId),
+                    "Serviço não encontrado ou indisponível.");
 
-            return RedirectToAction(nameof(MeusAgendamentos));
+                CarregarDados();
+                return View(agendamento);
+            }
+
+            // 6. Calcular o sinal de 30%
+            decimal valorSinal = Math.Round(
+                servico.Preco * 0.30m,
+                2,
+                MidpointRounding.AwayFromZero);
+
+            // 7. Salvar o agendamento
+            int agendamentoId = _agendamentoRepository.Cadastrar(agendamento);
+
+            agendamento.Id = agendamentoId;
+
+            // 8. Criar registro de pagamento
+            int pagamentoId = 0;
+
+            try
+            {
+                var pagamento = new Pagamento
+                {
+                    AgendamentoId = agendamentoId,
+                    Valor = valorSinal,
+                    Percentual = 30.00m,
+                    Gateway = "MercadoPago",
+                    Status = "Pendente"
+                };
+
+                pagamentoId = _pagamentoRepository.Cadastrar(pagamento);
+
+                // 9. Preparar URLs de retorno
+                string urlSucesso = Url.Action(
+                    "PagamentoSucesso",
+                    "AgendamentoCliente",
+                    null,
+                    Request.Scheme)!;
+
+                string urlFalha = Url.Action(
+                    "PagamentoFalha",
+                    "AgendamentoCliente",
+                    null,
+                    Request.Scheme)!;
+
+                string urlPendente = Url.Action(
+                    "PagamentoPendente",
+                    "AgendamentoCliente",
+                    null,
+                    Request.Scheme)!;
+
+                // 10. Criar Order no Mercado Pago
+                var resultado = await _mercadoPagoService.CriarOrderAsync(
+                    agendamentoId,
+                    servico.Nome,
+                    valorSinal,
+                    cliente.Email,
+                    cliente.Nome,
+                    urlSucesso,
+                    urlFalha,
+                    urlPendente
+                );
+
+                // 11. Atualizar pagamento com os dados do checkout
+                _pagamentoRepository.AtualizarCheckout(
+                    pagamentoId,
+                    resultado.OrderId,
+                    resultado.CheckoutUrl,
+                    "Pendente"
+                );
+
+                // 12. Redirecionar para o Mercado Pago
+                return Redirect(resultado.CheckoutUrl);
+            }
+            catch (Exception ex)
+            {
+                // 13. Registrar falha no pagamento
+                if (pagamentoId > 0)
+                {
+                    _pagamentoRepository.AtualizarStatus(
+                        pagamentoId,
+                        "Falha");
+                }
+
+                // 14. Cancelar agendamento para liberar o horário
+                agendamento.Status = "Cancelado";
+
+                _agendamentoRepository.Atualizar(agendamento);
+
+                TempData["Erro"] =
+                    "Não foi possível iniciar o pagamento. Tente novamente. " +
+                    ex.Message;
+
+                return RedirectToAction(nameof(MeusAgendamentos));
+            }
         }
 
         // ============================================================
@@ -263,7 +425,10 @@ namespace SalaoManicure.Controllers
 
         private void CarregarDados()
         {
-            ViewBag.Profissionais = _profissionalRepository.Listar()
+            var profissionais = _profissionalRepository.Listar();
+            var servicos = _servicoRepository.Listar();
+
+            ViewBag.Profissionais = profissionais
                 .Where(p => p.Ativo)
                 .Select(p => new SelectListItem
                 {
@@ -272,14 +437,20 @@ namespace SalaoManicure.Controllers
                 })
                 .ToList();
 
-            ViewBag.Servicos = _servicoRepository.Listar()
+            var servicosAtivos = servicos
                 .Where(s => s.Ativo)
+                .ToList();
+
+            ViewBag.Servicos = servicosAtivos
                 .Select(s => new SelectListItem
                 {
                     Value = s.Id.ToString(),
                     Text = $"{s.Nome} - {s.Preco:C2}"
                 })
                 .ToList();
+
+            // Dados utilizados pelo JavaScript para calcular o sinal
+            ViewBag.ServicosDados = servicosAtivos;
         }
     }
 }
