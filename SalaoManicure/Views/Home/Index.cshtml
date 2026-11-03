@@ -24,6 +24,20 @@ var disponibilidades = Model?
 }
 
 <style>
+    body {
+        min-height: 100vh;
+        background: #f8f5f7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .navbar-brand {display:none;}
+
+    .nav-link{display:none;} 
+    .text-dark{display:none;}
+    
+
     .card-horario {
         width: 20%;
         padding-left: 5px;
@@ -54,7 +68,9 @@ var disponibilidades = Model?
     }
 
     .btn-agendar {       
-        background: #e9739e;
+        /* background: #e9739e;*/
+        background: #CA2CB8;
+        color: #FFFFFF;
     }
 
         .horario-card:hover {
@@ -78,11 +94,19 @@ var disponibilidades = Model?
     .bg-success {       
         background-color: rgb(107 25 135) !important;
     }
+
+    .fw-bold {
+        color: #8D1F81 !important
+    }
+
+    .text-muted {
+        --bs-text-opacity: 1;
+        color: #CA2CB8 !important;
+    }
 </style>
 
 <div class="container-fluid py-4">
-
-    ```
+    
     <!-- Cabeçalho -->
     <div class="text-center mb-4">
 

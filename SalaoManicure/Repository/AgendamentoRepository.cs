@@ -19,58 +19,85 @@ namespace SalaoManicure.Repository
         }
 
         // Cadastrar
-        public void Cadastrar(Agendamento agendamento)
+        //public void Cadastrar(Agendamento agendamento)
+        //{
+        //    using var conexao = new MySqlConnection(_conexao);
+
+        //    conexao.Open();
+
+        //    string sql = @"
+        //        INSERT INTO Agendamentos
+        //            (Data,
+        //             Horario,
+        //             Status,
+        //             ClienteId,
+        //             ProfissionalId,
+        //             ServicoId)
+        //        VALUES
+        //            (@Data,
+        //             @Horario,
+        //             @Status,
+        //             @ClienteId,
+        //             @ProfissionalId,
+        //             @ServicoId);";
+
+        //    using var comando = new MySqlCommand(sql, conexao);
+
+        //    comando.Parameters.AddWithValue(
+        //        "@Data",
+        //        agendamento.Data.Date);
+
+        //    comando.Parameters.AddWithValue(
+        //        "@Horario",
+        //        agendamento.Horario);
+
+        //    comando.Parameters.AddWithValue(
+        //        "@Status",
+        //        agendamento.Status);
+
+        //    comando.Parameters.AddWithValue(
+        //        "@ClienteId",
+        //        agendamento.ClienteId);
+
+        //    comando.Parameters.AddWithValue(
+        //        "@ProfissionalId",
+        //        agendamento.ProfissionalId);
+
+        //    comando.Parameters.AddWithValue(
+        //        "@ServicoId",
+        //        agendamento.ServicoId);
+
+        //    comando.ExecuteNonQuery();
+        //}
+
+        // Atualizar
+
+        public int Cadastrar(Agendamento agendamento)
         {
             using var conexao = new MySqlConnection(_conexao);
-
             conexao.Open();
 
             string sql = @"
-                INSERT INTO Agendamentos
-                    (Data,
-                     Horario,
-                     Status,
-                     ClienteId,
-                     ProfissionalId,
-                     ServicoId)
-                VALUES
-                    (@Data,
-                     @Horario,
-                     @Status,
-                     @ClienteId,
-                     @ProfissionalId,
-                     @ServicoId);";
+        INSERT INTO agendamentos
+            (Data, Horario, Status, ClienteId, ProfissionalId, ServicoId)
+        VALUES
+            (@Data, @Horario, @Status, @ClienteId, @ProfissionalId, @ServicoId);";
 
             using var comando = new MySqlCommand(sql, conexao);
 
-            comando.Parameters.AddWithValue(
-                "@Data",
-                agendamento.Data.Date);
-
-            comando.Parameters.AddWithValue(
-                "@Horario",
-                agendamento.Horario);
-
-            comando.Parameters.AddWithValue(
-                "@Status",
-                agendamento.Status);
-
-            comando.Parameters.AddWithValue(
-                "@ClienteId",
-                agendamento.ClienteId);
-
-            comando.Parameters.AddWithValue(
-                "@ProfissionalId",
-                agendamento.ProfissionalId);
-
-            comando.Parameters.AddWithValue(
-                "@ServicoId",
-                agendamento.ServicoId);
+            comando.Parameters.AddWithValue("@Data", agendamento.Data.Date);
+            comando.Parameters.AddWithValue("@Horario", agendamento.Horario);
+            comando.Parameters.AddWithValue("@Status", agendamento.Status);
+            comando.Parameters.AddWithValue("@ClienteId", agendamento.ClienteId);
+            comando.Parameters.AddWithValue("@ProfissionalId", agendamento.ProfissionalId);
+            comando.Parameters.AddWithValue("@ServicoId", agendamento.ServicoId);
 
             comando.ExecuteNonQuery();
+
+            return (int)comando.LastInsertedId;
         }
 
-        // Atualizar
+
         public void Atualizar(Agendamento agendamento)
         {
             using var conexao = new MySqlConnection(_conexao);

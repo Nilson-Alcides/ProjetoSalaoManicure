@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using SalaoManicure.Libraries.Filtro;
 using SalaoManicure.Models;
 using SalaoManicure.Repository.Contract;
 
@@ -36,6 +37,7 @@ namespace SalaoManicure.Controllers
         // ============================================================
 
         [HttpGet]
+        
         public IActionResult MeusAgendamentos()
         {
             int? usuarioId =
@@ -61,6 +63,7 @@ namespace SalaoManicure.Controllers
         // ============================================================
 
         [HttpGet]
+        
         public IActionResult Cadastrar()
         {
             int? usuarioId =
@@ -93,6 +96,7 @@ namespace SalaoManicure.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+       
         public IActionResult Cadastrar(Agendamento agendamento)
         {
             int? usuarioId =
@@ -109,7 +113,7 @@ namespace SalaoManicure.Controllers
 
             // O cliente é definido pelo servidor, nunca pelo formulário.
             agendamento.ClienteId = cliente.Id;
-            agendamento.Status = "Agendado";
+            agendamento.Status = "PendentePagamento";
 
             ModelState.Remove(nameof(Agendamento.ClienteId));
             ModelState.Remove(nameof(Agendamento.Status));
@@ -139,10 +143,10 @@ namespace SalaoManicure.Controllers
                 return View(agendamento);
             }
 
+            int agendamentoId =
             _agendamentoRepository.Cadastrar(agendamento);
 
-            TempData["Sucesso"] =
-                "Agendamento realizado com sucesso!";
+            TempData["AgendamentoId"] = agendamentoId;
 
             return RedirectToAction(nameof(MeusAgendamentos));
         }

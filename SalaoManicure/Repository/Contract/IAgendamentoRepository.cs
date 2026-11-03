@@ -5,7 +5,7 @@ namespace SalaoManicure.Repository.Contract
 {
     public interface IAgendamentoRepository
     {
-        void Cadastrar(Agendamento agendamento);
+        int Cadastrar(Agendamento agendamento);
 
         void Atualizar(Agendamento agendamento);
 

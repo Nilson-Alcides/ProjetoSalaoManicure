@@ -63,6 +63,13 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 
+# Arquivos de configuração com dados sensíveis
+appsettings.json
+appsettings.*.json
+
+# Exceto arquivos de exemplo
+!appsettings.example.json
+
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
 
