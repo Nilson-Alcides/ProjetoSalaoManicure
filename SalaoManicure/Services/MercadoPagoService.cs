@@ -53,6 +53,31 @@ namespace SalaoManicure.Services
                 "F2",
                 CultureInfo.InvariantCulture);
 
+            //var pedido = new
+            //{
+            //    type = "online",
+            //    processing_mode = "manual",
+            //    capture_mode = "automatic_async",
+            //    total_amount = valorFormatado,
+            //    external_reference = agendamentoId.ToString(),
+
+            //    description = $"Sinal de 30% - {nomeServico}",
+
+            //    payer = new
+            //    {
+            //        email = emailCliente
+            //    },
+
+            //    items = new[]
+            //    {
+            //        new
+            //        {
+            //            title = $"Sinal de 30% - {nomeServico}",
+            //            quantity = 1,
+            //            unit_price = valorFormatado
+            //        }
+            //    }
+            //};
             var pedido = new
             {
                 type = "online",
@@ -69,12 +94,23 @@ namespace SalaoManicure.Services
                 },
 
                 items = new[]
+    {
+        new
+        {
+            title = $"Sinal de 30% - {nomeServico}",
+            quantity = 1,
+            unit_price = valorFormatado
+        }
+    },
+
+                config = new
                 {
-                    new
+                    online = new
                     {
-                        title = $"Sinal de 30% - {nomeServico}",
-                        quantity = 1,
-                        unit_price = valorFormatado
+                        success_url = urlSucesso,
+                        failure_url = urlFalha,
+                        pending_url = urlPendente,
+                        auto_return = "approved"
                     }
                 }
             };
@@ -97,8 +133,11 @@ namespace SalaoManicure.Services
             using var resposta =
                 await _httpClient.SendAsync(requisicao);
 
-            var conteudo =
-                await resposta.Content.ReadAsStringAsync();
+            var conteudo = await resposta.Content.ReadAsStringAsync();
+
+            //Console.WriteLine("HTTP: " + (int)resposta.StatusCode);
+            //Console.WriteLine("RESPOSTA MERCADO PAGO:");
+            //Console.WriteLine(conteudo);
 
             if (!resposta.IsSuccessStatusCode)
             {
@@ -141,6 +180,80 @@ namespace SalaoManicure.Services
                 Status = status ?? "created"
             };
         }
-      
+
+        public async Task<ResultadoConsultaOrder> ConsultarOrderAsync(
+    string orderId)
+        {
+            var accessToken =
+                _configuration["MercadoPago:AccessToken"];
+
+            if (string.IsNullOrWhiteSpace(accessToken))
+                throw new InvalidOperationException(
+                    "Access Token do Mercado Pago não configurado.");
+
+            if (string.IsNullOrWhiteSpace(orderId))
+                throw new ArgumentException("Order ID inválido.");
+
+            using var requisicao = new HttpRequestMessage(
+                HttpMethod.Get,
+                $"v1/orders/{Uri.EscapeDataString(orderId)}");
+
+            requisicao.Headers.Authorization =
+                new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using var resposta = await _httpClient.SendAsync(requisicao);
+
+            var conteudo = await resposta.Content.ReadAsStringAsync();
+
+            if (!resposta.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException(
+                    $"Erro ao consultar Order no Mercado Pago. " +
+                    $"Status: {(int)resposta.StatusCode}. " +
+                    $"Resposta: {conteudo}");
+            }
+
+            using var documento = JsonDocument.Parse(conteudo);
+            var raiz = documento.RootElement;
+
+            string status = raiz.TryGetProperty("status", out var statusElement)
+                ? statusElement.GetString() ?? ""
+                : "";
+
+            string statusDetail = raiz.TryGetProperty(
+                "status_detail", out var detailElement)
+                    ? detailElement.GetString() ?? ""
+                    : "";
+
+            string externalReference = raiz.TryGetProperty(
+                "external_reference", out var referenceElement)
+                    ? referenceElement.GetString() ?? ""
+                    : "";
+
+            string? paymentId = null;
+
+            if (raiz.TryGetProperty("transactions", out var transactions) &&
+                transactions.TryGetProperty("payments", out var payments) &&
+                payments.ValueKind == JsonValueKind.Array &&
+                payments.GetArrayLength() > 0)
+            {
+                var primeiroPagamento = payments[0];
+
+                if (primeiroPagamento.TryGetProperty("id", out var paymentElement))
+                {
+                    paymentId = paymentElement.GetString();
+                }
+            }
+
+            return new ResultadoConsultaOrder
+            {
+                OrderId = orderId,
+                Status = status,
+                StatusDetail = statusDetail,
+                ExternalReference = externalReference,
+                PaymentId = paymentId
+            };
+        }
+
     }
 }

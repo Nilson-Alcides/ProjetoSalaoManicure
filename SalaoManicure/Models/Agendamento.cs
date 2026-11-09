@@ -15,6 +15,7 @@ namespace SalaoManicure.Models
 
         [Required(ErrorMessage = "Informe o status.")]
         public string Status { get; set; } = "Agendado";
+        public Pagamento? Pagamento { get; set; }
 
 
         // ============================================================

@@ -18,6 +18,8 @@ namespace SalaoManicure.Controllers
         private readonly IBloqueioRepository _bloqueioRepository;
         private readonly IPagamentoRepository _pagamentoRepository;
         private readonly IMercadoPagoService _mercadoPagoService;
+        private readonly IConfiguration _configuration;
+
 
         public AgendamentoClienteController(
             IAgendamentoRepository agendamentoRepository,
@@ -27,7 +29,8 @@ namespace SalaoManicure.Controllers
             IDisponibilidadeRepository disponibilidadeRepository,
             IBloqueioRepository bloqueioRepository,
             IPagamentoRepository pagamentoRepository,
-            IMercadoPagoService mercadoPagoService
+            IMercadoPagoService mercadoPagoService,
+            IConfiguration configuration
             )   
         {
             _agendamentoRepository = agendamentoRepository;
@@ -38,6 +41,7 @@ namespace SalaoManicure.Controllers
             _bloqueioRepository = bloqueioRepository;
             _pagamentoRepository = pagamentoRepository;
             _mercadoPagoService = mercadoPagoService;
+            _configuration = configuration;
         }
 
         // ============================================================
@@ -101,63 +105,6 @@ namespace SalaoManicure.Controllers
         // ============================================================
         // CADASTRAR - POST
         // ============================================================
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-
-        //public IActionResult Cadastrar(Agendamento agendamento)
-        //{
-        //    int? usuarioId =
-        //        HttpContext.Session.GetInt32("UsuarioId");
-
-        //    if (usuarioId == null)
-        //        return RedirectToAction("Login", "Auth");
-
-        //    var cliente =
-        //        _clienteRepository.BuscarPorUsuarioId(usuarioId.Value);
-
-        //    if (cliente == null)
-        //        return RedirectToAction("Index", "ClienteLogado");
-
-        //    // O cliente é definido pelo servidor, nunca pelo formulário.
-        //    agendamento.ClienteId = cliente.Id;
-        //    agendamento.Status = "PendentePagamento";
-
-        //    ModelState.Remove(nameof(Agendamento.ClienteId));
-        //    ModelState.Remove(nameof(Agendamento.Status));
-
-        //    // Não permite agendamentos em datas passadas.
-        //    if (agendamento.Data.Date < DateTime.Today)
-        //    {
-        //        ModelState.AddModelError(
-        //            nameof(Agendamento.Data),
-        //            "Não é possível agendar para uma data passada.");
-        //    }
-
-        //    if (!ModelState.IsValid)
-        //    {
-        //        CarregarDados();
-        //        return View(agendamento);
-        //    }
-
-        //    // Confere novamente a disponibilidade no servidor.
-        //    if (!HorarioEstaDisponivel(agendamento))
-        //    {
-        //        ModelState.AddModelError(
-        //            nameof(Agendamento.Horario),
-        //            "O horário selecionado não está disponível. Escolha outro horário.");
-
-        //        CarregarDados();
-        //        return View(agendamento);
-        //    }
-
-        //    int agendamentoId =
-        //    _agendamentoRepository.Cadastrar(agendamento);
-
-        //    TempData["AgendamentoId"] = agendamentoId;
-
-        //    return RedirectToAction(nameof(MeusAgendamentos));
-        //}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -248,24 +195,20 @@ namespace SalaoManicure.Controllers
 
                 pagamentoId = _pagamentoRepository.Cadastrar(pagamento);
 
-                // 9. Preparar URLs de retorno
-                string urlSucesso = Url.Action(
-                    "PagamentoSucesso",
-                    "AgendamentoCliente",
-                    null,
-                    Request.Scheme)!;
+                // 9. Preparar URLs públicas de retorno
+                string baseUrl = _configuration["App:PublicBaseUrl"]?
+                    .TrimEnd('/')
+                    ?? throw new InvalidOperationException(
+                        "URL pública do sistema não configurada.");
 
-                string urlFalha = Url.Action(
-                    "PagamentoFalha",
-                    "AgendamentoCliente",
-                    null,
-                    Request.Scheme)!;
+                string urlSucesso =
+                     $"{baseUrl}/AgendamentoCliente/PagamentoSucesso?agendamentoId={agendamentoId}";
 
-                string urlPendente = Url.Action(
-                    "PagamentoPendente",
-                    "AgendamentoCliente",
-                    null,
-                    Request.Scheme)!;
+                string urlFalha =
+                    $"{baseUrl}/AgendamentoCliente/PagamentoFalha?agendamentoId={agendamentoId}";
+
+                string urlPendente =
+                    $"{baseUrl}/AgendamentoCliente/PagamentoPendente?agendamentoId={agendamentoId}";
 
                 // 10. Criar Order no Mercado Pago
                 var resultado = await _mercadoPagoService.CriarOrderAsync(
@@ -277,7 +220,9 @@ namespace SalaoManicure.Controllers
                     urlSucesso,
                     urlFalha,
                     urlPendente
+
                 );
+
 
                 // 11. Atualizar pagamento com os dados do checkout
                 _pagamentoRepository.AtualizarCheckout(
@@ -451,6 +396,63 @@ namespace SalaoManicure.Controllers
 
             // Dados utilizados pelo JavaScript para calcular o sinal
             ViewBag.ServicosDados = servicosAtivos;
+        }
+
+        // ============================================================
+        // RETORNO DO MERCADO PAGO
+        // ============================================================
+
+       [HttpGet]
+        public IActionResult PagamentoSucesso(int agendamentoId)
+        {
+            int? usuarioId = HttpContext.Session.GetInt32("UsuarioId");
+
+            if (usuarioId == null)
+                return RedirectToAction("Login", "Auth");
+
+            var cliente = _clienteRepository.BuscarPorUsuarioId(usuarioId.Value);
+
+            if (cliente == null)
+                return RedirectToAction("Index", "ClienteLogado");
+
+            var agendamento = _agendamentoRepository.BuscarPorId(agendamentoId);
+
+            if (agendamento == null || agendamento.ClienteId != cliente.Id)
+                return NotFound();
+
+            var pagamento = _pagamentoRepository.BuscarPorAgendamentoId(agendamentoId);
+
+            if (pagamento == null)
+                return NotFound();
+
+            agendamento.Pagamento = pagamento;
+
+            return View(agendamento);
+        }
+
+        [HttpGet]
+        public IActionResult PagamentoFalha(int agendamentoId)
+        {
+            return RedirectToAction(
+                nameof(PagamentoSucesso),
+                new { agendamentoId });
+        }
+
+        [HttpGet]
+        public IActionResult PagamentoPendente(int agendamentoId)
+        {
+            return RedirectToAction(
+                nameof(PagamentoSucesso),
+                new { agendamentoId });
+        }
+
+        [HttpGet]
+        public IActionResult PagamentoPendente()
+        {
+            TempData["Aviso"] =
+                "Seu pagamento está aguardando confirmação do Mercado Pago.";
+
+            return RedirectToAction(nameof(MeusAgendamentos));
         }
     }
 }

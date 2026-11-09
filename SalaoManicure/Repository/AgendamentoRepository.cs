@@ -271,95 +271,62 @@ namespace SalaoManicure.Repository
         public Agendamento? BuscarPorId(int id)
         {
             using var conexao = new MySqlConnection(_conexao);
-
             conexao.Open();
 
-            string sql = @"
-                SELECT
-                    a.Id,
-                    a.Data,
-                    a.Horario,
-                    a.Status,
-
-                    a.ClienteId,
-                    c.Nome AS ClienteNome,
-
-                    a.ProfissionalId,
-                    p.Nome AS ProfissionalNome,
-
-                    a.ServicoId,
-                    s.Nome AS ServicoNome
-
-                FROM Agendamentos a
-
-                INNER JOIN Clientes c
-                    ON c.Id = a.ClienteId
-
-                INNER JOIN Profissionais p
-                    ON p.Id = a.ProfissionalId
-
-                INNER JOIN Servicos s
-                    ON s.Id = a.ServicoId
-
-                WHERE a.Id = @Id;";
+            const string sql = @"
+        SELECT
+            a.Id,
+            a.Data,
+            a.Horario,
+            a.Status,
+            a.ClienteId,
+            c.Nome AS ClienteNome,
+            a.ProfissionalId,
+            p.Nome AS ProfissionalNome,
+            a.ServicoId,
+            s.Nome AS ServicoNome,
+            s.Preco AS ServicoPreco
+        FROM agendamentos a
+        INNER JOIN clientes c ON c.Id = a.ClienteId
+        INNER JOIN profissionais p ON p.Id = a.ProfissionalId
+        INNER JOIN servicos s ON s.Id = a.ServicoId
+        WHERE a.Id = @Id;";
 
             using var comando = new MySqlCommand(sql, conexao);
-
-            comando.Parameters.AddWithValue(
-                "@Id",
-                id);
+            comando.Parameters.AddWithValue("@Id", id);
 
             using var reader = comando.ExecuteReader();
 
             if (!reader.Read())
-            {
                 return null;
-            }
 
             return new Agendamento
             {
                 Id = reader.GetInt32("Id"),
-
                 Data = reader.GetDateTime("Data"),
-
                 Horario = reader.GetTimeSpan("Horario"),
-
                 Status = reader.GetString("Status"),
 
-                ClienteId =
-                    reader.GetInt32("ClienteId"),
-
+                ClienteId = reader.GetInt32("ClienteId"),
                 Cliente = new Cliente
                 {
-                    Id =
-                        reader.GetInt32("ClienteId"),
-
-                    Nome =
-                        reader.GetString("ClienteNome")
+                    Id = reader.GetInt32("ClienteId"),
+                    Nome = reader.GetString("ClienteNome")
                 },
 
-                ProfissionalId =
-                    reader.GetInt32("ProfissionalId"),
-
+                ProfissionalId = reader.GetInt32("ProfissionalId"),
                 Profissional = new Profissional
                 {
-                    Id =
-                        reader.GetInt32("ProfissionalId"),
-
-                    Nome =
-                        reader.GetString("ProfissionalNome")
+                    Id = reader.GetInt32("ProfissionalId"),
+                    Nome = reader.GetString("ProfissionalNome")
                 },
 
-                ServicoId =
-                    reader.GetInt32("ServicoId"),
-
+                ServicoId = reader.GetInt32("ServicoId"),
                 Servico = new Servico
                 {
-                    Id =
-                        reader.GetInt32("ServicoId"),
-
-                    Nome =
-                        reader.GetString("ServicoNome")
+                    Id = reader.GetInt32("ServicoId"),
+                    Nome = reader.GetString("ServicoNome"),
+                    Preco = reader.GetDecimal("ServicoPreco")
                 }
             };
         }
