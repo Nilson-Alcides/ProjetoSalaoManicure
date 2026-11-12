@@ -1,0 +1,118 @@
+﻿/* Botão flutuante */
+.botao-acessibilidade {
+    position: fixed;
+    right: 20px;
+    bottom: 25px;
+    z-index: 1050;
+    width: 58px;
+    height: 58px;
+    border: none;
+    border-radius: 50%;
+    background: #a23b68;
+    color: #fff;
+    font-size: 28px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25);
+    cursor: pointer;
+}
+
+    .botao-acessibilidade:hover {
+        background: #842c54;
+    }
+
+/* Painel */
+.acessibilidade-painel {
+    position: fixed;
+    right: 20px;
+    bottom: 95px;
+    z-index: 1051;
+    width: 280px;
+    padding: 20px;
+    background: #fff;
+    color: #212529;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(0,0,0,.2);
+}
+
+    .acessibilidade-painel[hidden] {
+        display: none !important;
+    }
+
+    .acessibilidade-painel h2 {
+        font-size: 1.15rem;
+        margin-bottom: 15px;
+    }
+
+    .acessibilidade-painel button {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .acessibilidade-painel .grupo-fonte {
+        display: flex;
+        gap: 8px;
+    }
+
+        .acessibilidade-painel .grupo-fonte button {
+            flex: 1;
+        }
+
+/* Alto contraste */
+body.alto-contraste {
+    background: #000 !important;
+    color: #fff !important;
+}
+
+    body.alto-contraste main,
+    body.alto-contraste footer,
+    body.alto-contraste .card,
+    body.alto-contraste .modal-content,
+    body.alto-contraste .dropdown-menu {
+        background: #000 !important;
+        color: #fff !important;
+        border-color: #ff0 !important;
+    }
+
+    body.alto-contraste p,
+    body.alto-contraste span,
+    body.alto-contraste label,
+    body.alto-contraste h1,
+    body.alto-contraste h2,
+    body.alto-contraste h3,
+    body.alto-contraste h4,
+    body.alto-contraste h5,
+    body.alto-contraste h6 {
+        color: #fff !important;
+    }
+
+    body.alto-contraste a {
+        color: #ff0 !important;
+    }
+
+    body.alto-contraste button {
+        outline-color: #ff0;
+    }
+
+/* Destaque de links */
+body.destacar-links a {
+    outline: 2px solid #d10dfd !important;
+    outline-offset: 2px;
+    text-decoration: underline !important;
+}
+
+@media (max-width: 576px) {
+    .acessibilidade-painel {
+        right: 12px;
+        width: min(280px, calc(100vw - 24px));
+    }
+
+    .botao-acessibilidade {
+        right: 15px;
+        bottom: 15px;
+    }
+}
+.botao-acessibilidade {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

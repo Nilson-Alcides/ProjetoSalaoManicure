@@ -3,10 +3,17 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>@ViewData["Title"] - SalaoManicure</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SalaoManicure.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/acessibilidade.css" asp-append-version="true" />
 </head>
 <body>
     <header>
@@ -41,9 +48,93 @@
             &copy; 2026 - SalaoManicure - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
+    <!-- BOTÃO DE ACESSIBILIDADE -->
+    <button type="button"
+            id="botaoAcessibilidade"
+            class="botao-acessibilidade"
+            aria-label="Abrir opções de acessibilidade"
+            aria-controls="painelAcessibilidade"
+            aria-expanded="false"
+            title="Acessibilidade">
+
+        <i class="bi bi-universal-access"></i>
+    </button>
+
+    <!-- PAINEL DE ACESSIBILIDADE -->
+    <section id="painelAcessibilidade"
+             class="acessibilidade-painel"
+             aria-labelledby="tituloAcessibilidade"
+             hidden>
+
+        <h2 id="tituloAcessibilidade">
+            <i class="bi bi-universal-access me-2"></i>
+            Acessibilidade
+        </h2>
+
+        <p class="small">Tamanho da fonte</p>
+
+        <div class="grupo-fonte">
+            <button type="button"
+                    id="diminuirFonte"
+                    class="btn btn-outline-secondary"
+                    aria-label="Diminuir fonte">
+                A-
+            </button>
+
+            <button type="button"
+                    id="aumentarFonte"
+                    class="btn btn-outline-secondary"
+                    aria-label="Aumentar fonte">
+                A+
+            </button>
+        </div>
+
+        <hr />
+
+        <button type="button"
+                id="alternarContraste"
+                class="btn btn-outline-dark">
+            <i class="bi bi-circle-half me-2"></i>
+            Alto contraste
+        </button>
+
+        <button type="button"
+                id="destacarLinks"
+                class="btn btn-outline-dark">
+            <i class="bi bi-link-45deg me-2"></i>
+            Destacar links
+        </button>
+
+        <hr />
+
+        <button type="button"
+                id="restaurarAcessibilidade"
+                class="btn btn-outline-danger">
+            <i class="bi bi-arrow-counterclockwise me-2"></i>
+            Restaurar padrão
+        </button>
+
+    </section>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+
+    <script src="~/js/acessibilidade.js" asp-append-version="true"></script>
+
+    <!-- VLibras -->
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+
+    <script>
+        new window.VLibras.Widget({
+            rootPath: 'https://vlibras.gov.br/app',
+            avatar: 'icaro',
+            position: 'R'
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
